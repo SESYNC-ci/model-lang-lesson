@@ -19,7 +19,7 @@ The results produced by Stan are tables of numbers with a column for each coeffi
 
 The formulas we use previously to describe a "random intercepts" model are directly included in a Stan formula.
 
-```stan
+```
 data {
   int N;
   vector[N] log_weight;
@@ -73,9 +73,18 @@ stanimals <- c(
 samp <- stan(file = 'worksheet.stan',
              data = stanimals,
              iter = 1000, chains = 3)
+saveRDS(samp, 'stanimals.RDS')
 ~~~
 {:.text-document title="worksheet.R"}
 
 ===
 
-## 
+## Summary
+
+- Several "formula" languages co-exist in R packages
+  - Linear models and generalized linear models are similar
+  - Mixed effects models use grouping to add "random effects"
+
+- "Generalized" modeling functiongs add a `family` specification.
+
+- Sampling with Stan lets you specify any structure and use any probability distribution. You pay a great cost in speed and difficulty.
