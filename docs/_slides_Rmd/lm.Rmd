@@ -1,0 +1,55 @@
+---
+---
+
+## Linear models
+
+The formula requires a response variable left of a "~" and any number of predictors to its right.
+
+| Formula                | Equivalent            | Description                                                                               |
+| `y ~ a`                | `y ~ 1 + a`           | constant and one predictor                                                                |
+| `y ~ -1 + a`           | `y ~ 0 + a`           | one predictor with no constant                                                            |
+| `y ~ a + b`            | `y ~ 1 + a + b`       | constant and two predictors                                                               |
+| `y ~ a:b`              |                       | constant and one predictor, the interaction of (at least) one factor and another variable |
+| `y ~ a*b`              | `y ~ 1 + a + b + a:b` | constant and three predictors                                                             |
+| `y ~ a*b - a           | `y ~ 1 + b + a:b`     | constant and two predictors                                                               |
+| `y ~ (a + b + ... )^n` |                       | constant and all combinations of predictors up to order `n`                               |
+
+===
+
+## Linear model
+
+In addition, certain functions are allowed within the formula definition.
+
+```{r, title = '{{ site.handouts }}'}
+animals <- read.csv('data/animals.csv', stringsAsFactors = FALSE, na.strings = '')
+fit <- lm(
+  log(weight) ~ hindfoot_length,
+  data = animals)
+```
+```{r}
+summary(fit)
+```
+
+===
+
+## Exercise 1
+
+Regress hindfoot_length against weight and species_id. Does it appear that the Chihuahuan Desert's common kangaroo rat (DM) have *inordinately* large feet for their weight?
+
+===
+
+## Pay attention to factors
+
+Data type matters in statistical modelling. For the predictors in a linear model, the most important distinction is discrete versus continuous.
+
+```{r, title = '{{ site.handouts }}'}
+animals$species_id <- factor(animals$species_id)
+fit <- lm(
+  log(weight) ~ species_id,
+  data = animals)
+```
+```{r}
+summary(fit)
+```
+
+The difference between 1 and 24 degrees of freedom between the last two models---with one fixed effect each---arises from the discreteness of `species_id`.

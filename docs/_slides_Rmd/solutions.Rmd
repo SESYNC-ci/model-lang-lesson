@@ -1,0 +1,20 @@
+---
+---
+
+## Solutions
+
+===
+
+## Solution 3
+
+```{r}
+species <- read.csv('data/species.csv')
+df <- animals %>%
+  inner_join(species, c('species_id' = 'id')) %>%
+  filter(genus == 'Perognathus')
+df$species_id <- factor(df$species_id)
+summary(glm(species_id ~ weight, family = binomial, data = df))
+```
+
+[Return](#exercise-3)
+{:.notes}

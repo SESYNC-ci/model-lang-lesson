@@ -1,0 +1,79 @@
+---
+---
+
+## Linear Mixed Models
+
+The [lme4](){:.rlib} package expands the formula "mini-language" to allow descriptions of "random effects". In the context of this package, variables added to the right of the "~" in the usual way are "fixed effects"---they consume a well-defined number of degrees of freedom. Variables added within "(...|...)" are "random effects".
+
+===
+
+The "variable intercepts" and "random slopes" classes of model are the two most common extensions to a formula with one variable.
+
+| Formula         | Description |
+|-----------------|-------------|
+| `y ~ a`         | constant and one fixed effect |
+| `y ~ (1 | b) + a` | random intercept for each level in `b` and one fixed effect |
+| `y ~ (1 + a | b)` | random intercepts and "slopes" w.r.t. `a` for each level in `b`|
+
+===
+
+## Random intercept
+
+The `lmer` and `glmer` functions fit linear and generalized linear models with the `lme4` formula syntax.
+
+```{r, message = FALSE, title = '{{ site.handouts }}'}
+library(lme4)
+fit <- lmer(log(weight) ~ (1 | species_id) + hindfoot_length,
+            data = animals)
+```
+```{r}
+summary(fit)
+```
+
+The familiar assessment of model residuals is absent from the summary due to the lack of a widely accepted measure of null and residual deviance. The notions of model saturation, degrees of freedom, and independence of observations have all crossed onto thin ice.
+{:.notes}
+
+===
+
+## Lack of independence
+
+Models with random effects should be understood as specifying multiple, overlapping probability statements about the observations.
+
+$$
+\begin{align}
+log(weight_i) &\sim Normal(\mu_i, \sigma_0^2) \\
+\mu_i &= \beta_0 + \beta_1[species\_id_i] + \beta_2 * hindfoot\_length_i \\
+\beta_1[j] &\sim Normal(0, \sigma_1^2) \\
+\end{align}
+$$
+In a `lm` or `glm` fit, each response is conditionally independent, given it's predictors and the model coefficients. Each observation corresponds to it's own probability statement. In a model with random effects, each response is no longer conditionally independent, given it's predictors and model coefficients.
+{:.notes}
+
+===
+
+## Exercise 4
+
+Adjust the formula `log(weight) ~ hindfoot_length` to fit a "random intercepts" model, grouping by a different categorical variable (i.e. not species_id) in the `animals` data frame.
+
+===
+
+## Random slopes
+
+Adding a numeric variable after the constant within a grouping specified by `(...|...)` produces a "random slope" model. Here, separate coefficients for hindfoot_length are allowed for each species.
+
+```{r, title = '{{ site.handouts }}'}
+fit <- lmer(log(weight) ~ (1 + hindfoot_length | species_id),
+            data = animals)
+```
+```{r}
+summary(fit)
+```
+
+Allowing each animal to use a constant and hindfoot_length coefficient shared only by other members of its `species` is a lot like fitting separate regressions for each species. Actual utility arises when combining this random slope predictor with other predictors *not* grouped by species.
+{:.notes}
+
+===
+
+## Generalized Mixed Models
+
+The `glmer` function merely adds to `lmer` the option to specify an exponential family distribution for the response variable.

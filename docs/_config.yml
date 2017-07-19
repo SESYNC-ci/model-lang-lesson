@@ -1,15 +1,22 @@
 # Site
 
-title:
+title: Mini-Languages for Statistical Models
 handouts:
 tag:
-lesson:
-instructor:
+lesson: 6
+instructor: Ian Carroll
 authors:
+  - Ian Carroll
 
 # Slides
-
 slide_sorter:
+  - intro
+  - formula
+  - lm
+  - glm
+  - lme4
+  - stan
+  - solutions
 
 #####################################
 # Only modify content above or risk #
