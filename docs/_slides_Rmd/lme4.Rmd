@@ -46,6 +46,7 @@ log(weight_i) &\sim Normal(\mu_i, \sigma_0^2) \\
 \beta_1[j] &\sim Normal(0, \sigma_1^2) \\
 \end{align}
 $$
+
 In a `lm` or `glm` fit, each response is conditionally independent, given it's predictors and the model coefficients. Each observation corresponds to it's own probability statement. In a model with random effects, each response is no longer conditionally independent, given it's predictors and model coefficients.
 {:.notes}
 

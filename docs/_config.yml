@@ -16,7 +16,7 @@ slide_sorter:
   - glm
   - lme4
   - stan
-  - solutions
+#  - solutions
 
 #####################################
 # Only modify content above or risk #
