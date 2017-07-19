@@ -52,7 +52,7 @@ fit <- glm(sex ~ hindfoot_length,
            family = binomial,
            data = animals)
 ~~~
-{:.text-document title="{{ site.handouts }}"}
+{:.text-document title="{{ site.handouts[0] }}"}
 
 ~~~r
 summary(fit)
@@ -101,5 +101,7 @@ Both the `lm` and `glm` function allow a vector of `weights` the same length as 
 
 You are standing in the Chihuahuan desert, when a pocket mouse (genus Perognathus) suddenly runs up your pant leg. It doesn't weigh your pocket down much, relative to your many similar pocket mouse experiences. Run a binomial family GLM on the two Perognathus species in the Portal data that may help you predict to which species it belongs. Hint: The second `level()` of a factor is the "success" in a binomial GLM.
 
+<!--
 [View solution](#solution-3)
 {:.notes}
+-->

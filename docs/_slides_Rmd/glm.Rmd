@@ -43,7 +43,7 @@ fit <- glm(weight ~ hindfoot_length,
 
 Calling `glm` with `familly = binomial` using the default "logit" link performs logistic regression.
 
-```{r, title = '{{ site.handouts }}'}
+```{r, title = '{{ site.handouts[0] }}'}
 animals$sex <- factor(animals$sex)
 fit <- glm(sex ~ hindfoot_length,
            family = binomial,

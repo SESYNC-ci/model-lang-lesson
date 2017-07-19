@@ -20,7 +20,7 @@ The formula requires a response variable left of a "~" and any number of predict
 
 In addition, certain functions are allowed within the formula definition.
 
-```{r, title = '{{ site.handouts }}'}
+```{r, title = '{{ site.handouts[0] }}'}
 animals <- read.csv('data/animals.csv', stringsAsFactors = FALSE, na.strings = '')
 fit <- lm(
   log(weight) ~ hindfoot_length,
@@ -42,7 +42,7 @@ Regress hindfoot_length against weight and species_id. Does it appear that the C
 
 Data type matters in statistical modelling. For the predictors in a linear model, the most important distinction is discrete versus continuous.
 
-```{r, title = '{{ site.handouts }}'}
+```{r, title = '{{ site.handouts[0] }}'}
 animals$species_id <- factor(animals$species_id)
 fit <- lm(
   log(weight) ~ species_id,

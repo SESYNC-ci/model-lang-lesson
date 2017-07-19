@@ -21,7 +21,7 @@ The "variable intercepts" and "random slopes" classes of model are the two most 
 
 The `lmer` and `glmer` functions fit linear and generalized linear models with the `lme4` formula syntax.
 
-```{r, message = FALSE, title = '{{ site.handouts }}'}
+```{r, message = FALSE, title = '{{ site.handouts[0] }}'}
 library(lme4)
 fit <- lmer(log(weight) ~ (1 | species_id) + hindfoot_length,
             data = animals)
@@ -62,7 +62,7 @@ Adjust the formula `log(weight) ~ hindfoot_length` to fit a "random intercepts" 
 
 Adding a numeric variable after the constant within a grouping specified by `(...|...)` produces a "random slope" model. Here, separate coefficients for hindfoot_length are allowed for each species.
 
-```{r, title = '{{ site.handouts }}'}
+```{r, title = '{{ site.handouts[0] }}'}
 fit <- lmer(log(weight) ~ (1 + hindfoot_length | species_id),
             data = animals)
 ```

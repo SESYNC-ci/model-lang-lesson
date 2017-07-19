@@ -2,6 +2,8 @@
 
 title: Mini-Languages for Statistical Models
 handouts:
+  - worksheet.R
+  - worksheet.stan
 tag:
 lesson: 6
 instructor: Ian Carroll

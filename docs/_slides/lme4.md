@@ -27,7 +27,7 @@ library(lme4)
 fit <- lmer(log(weight) ~ (1 | species_id) + hindfoot_length,
             data = animals)
 ~~~
-{:.text-document title="{{ site.handouts }}"}
+{:.text-document title="{{ site.handouts[0] }}"}
 
 ~~~r
 summary(fit)
@@ -98,7 +98,7 @@ Adding a numeric variable after the constant within a grouping specified by `(..
 fit <- lmer(log(weight) ~ (1 + hindfoot_length | species_id),
             data = animals)
 ~~~
-{:.text-document title="{{ site.handouts }}"}
+{:.text-document title="{{ site.handouts[0] }}"}
 
 ~~~r
 summary(fit)

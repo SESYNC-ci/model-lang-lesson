@@ -47,7 +47,7 @@ model {
   sigma_genus ~ cauchy(0, 5);
 }
 ```
-{:.text-document title='worksheet.stan'}
+{:.text-document title='{{ site.handouts[1] }}'}
 
 ===
 
@@ -55,7 +55,7 @@ model {
 
 The [rstan](){:.rlib} package is a wrapper for sending data to the Stan program and getting back results.
 
-```{r, eval = FALSE, message = FALSE, title = 'worksheet.R'}
+```{r, eval = FALSE, message = FALSE, title = '{{ site.handouts[0] }}'}
 library(rstan)
 
 stanimals <- animals %>%
@@ -69,7 +69,7 @@ stanimals <- c(
   M = max(stanimals$species_idx),
   as.list(stanimals))
 
-samp <- stan(file = 'worksheet.stan',
+samp <- stan(file = '{{ site.handouts[1] }}',
              data = stanimals,
              iter = 1000, chains = 3)
 saveRDS(samp, 'stanimals.RDS')

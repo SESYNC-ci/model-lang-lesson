@@ -47,7 +47,7 @@ model {
   sigma_genus ~ cauchy(0, 5);
 }
 ```
-{:.text-document title='worksheet.stan'}
+{:.text-document title='{{ site.handouts[1] }}'}
 
 ===
 
@@ -70,12 +70,12 @@ stanimals <- c(
   M = max(stanimals$species_idx),
   as.list(stanimals))
 
-samp <- stan(file = 'worksheet.stan',
+samp <- stan(file = '{{ site.handouts[1] }}',
              data = stanimals,
              iter = 1000, chains = 3)
 saveRDS(samp, 'stanimals.RDS')
 ~~~
-{:.text-document title="worksheet.R"}
+{:.text-document title="{{ site.handouts[0] }}"}
 
 ===
 
