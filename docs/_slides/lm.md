@@ -60,7 +60,7 @@ F-statistic: 7.607e+04 on 1 and 30736 DF,  p-value: < 2.2e-16
 
 ## Exercise 1
 
-Regress hindfoot_length against weight and species_id. Does it appear that the Chihuahuan Desert's common kangaroo rat (DM) have *inordinately* large feet for their size?
+Regress hindfoot_length against weight and species_id. Does it appear that the Chihuahuan Desert's common kangaroo rat (DM) have *inordinately* large feet for their weight?
 
 ===
 
@@ -127,4 +127,4 @@ F-statistic: 1.58e+04 on 24 and 32258 DF,  p-value: < 2.2e-16
 ~~~
 {:.output}
 
-The difference between 1 and 24 degrees of freedom between the last two models---with one predictor each---arises from the discreteness of `species_id`.
+The difference between 1 and 24 degrees of freedom between the last two models---with one fixed effect each---arises from the discreteness of `species_id`.

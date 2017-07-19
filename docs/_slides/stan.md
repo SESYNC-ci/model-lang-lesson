@@ -3,118 +3,79 @@
 
 ## Meet Stan
 
-In Stan, the design matrix is not automatic.
+Stan is the name of a program that performs an entirely different kind of model fitting, and the Stan modelling language is yet another way of writing a "formula". Stan is similar to JAGS and BUGS: it is a "sampler", but does not use the Gibbs algorithm.
+
+===
 
 ## Sampling vs. Fitting
+
+The result of model fitting through `lm` and its descendents in R is an estimated coefficient coupled with the uncertainty in that estimate.
+
+The results produced by Stan are tables of numbers with a column for each coefficient in the model. Each row represents an equally likely set of coefficients for the model, as judged by its resulting fit to the data.
+
+===
+
+## An example
+
+The formulas we use previously to describe a "random intercepts" model are directly included in a Stan formula.
+
+```stan
+data {
+  int N;
+  vector[N] log_weight;
+  vector[N] hindfoot_length;
+  int species_id[N];
+  int M;
+} 
+parameters {
+  real beta0;
+  vector[M] beta1;
+  real beta2;
+  real<lower=0> sigma;
+  real<lower=0> sigma_genus;
+}
+transformed parameters {
+  vector[N] mu;
+  for (i in 1:N)
+    mu = beta0 + beta1[species_id]+ hindfoot_length * beta2;
+}
+model {
+  log_weight ~ normal(mu, sigma);
+  beta0 ~ normal(0, 10);
+  beta1 ~ normal(0, sigma_genus);
+  beta2 ~ normal(0, 10);
+  sigma_genus ~ cauchy(0, 5);
+}
+```
+{:.text-document title='worksheet.stan'}
+
+===
+
+# RStan
+
+The [rstan](){:.rlib} package is a wrapper for sending data to the Stan program and getting back results.
 
 
 ~~~r
 library(rstan)
 
-df <- animals %>%
-  select(weight, hindfoot_length) %>%
+stanimals <- animals %>%
+  select(weight, species_id, hindfoot_length) %>%
   na.omit() %>%
-  mutate(
-    log_weight = log(weight),
-    hindfoot_length = hindfoot_length) %>%
-  select(-weight)
-~~~
+  mutate(log_weight = log(weight),
+         species_idx = as.integer(factor(species_id))) %>%
+  select(-weight, -species_id)
+stanimals <- c(
+  N = nrow(stanimals),
+  M = max(stanimals$species_idx),
+  as.list(stanimals))
 
+samp <- stan(file = 'worksheet.stan',
+             data = stanimals,
+             iter = 1000, chains = 3)
 ~~~
-Error in select(., weight, hindfoot_length): could not find function "select"
-~~~
+{:.text-document title="worksheet.R"}
 
-~~~r
-stanimals <- c(N = nrow(df), as.list(df))
+===
 
-fit <- stan(file = 'worksheet.stan',
-            data = stanimals,
-            iter = 2017, chains = 2)
-~~~
-
-~~~
-In file included from /usr/local/lib/R/site-library/rstan/include/rstan/rstaninc.hpp:3:0,
-                 from file51bead5fd.cpp:414:
-/usr/local/lib/R/site-library/rstan/include/rstan/stan_fit.hpp: In function ‘int rstan::{anonymous}::command(rstan::stan_args&, Model&, Rcpp::List&, const std::vector<long unsigned int>&, const std::vector<std::__cxx11::basic_string<char> >&, RNG_t&)’:
-/usr/local/lib/R/site-library/rstan/include/rstan/stan_fit.hpp:438:8: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
-   std::auto_ptr<stan::io::var_context> init_context_ptr;
-        ^~~~~~~~
-In file included from /usr/include/c++/6/bits/locale_conv.h:41:0,
-                 from /usr/include/c++/6/locale:43,
-                 from /usr/local/lib/R/site-library/BH/include/boost/lexical_cast/detail/converter_lexical_streams.hpp:43,
-                 from /usr/local/lib/R/site-library/BH/include/boost/lexical_cast/detail/converter_lexical.hpp:54,
-                 from /usr/local/lib/R/site-library/BH/include/boost/lexical_cast/try_lexical_convert.hpp:42,
-                 from /usr/local/lib/R/site-library/BH/include/boost/lexical_cast.hpp:32,
-                 from /usr/local/lib/R/site-library/BH/include/boost/math/tools/convert_from_string.hpp:15,
-                 from /usr/local/lib/R/site-library/BH/include/boost/math/constants/constants.hpp:13,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/stan/math/prim/scal/fun/constants.hpp:4,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/stan/math/rev/core/operator_unary_plus.hpp:7,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/stan/math/rev/core.hpp:34,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/stan/math/rev/mat.hpp:4,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/stan/math.hpp:4,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/src/stan/model/model_header.hpp:4,
-                 from file51bead5fd.cpp:8:
-/usr/include/c++/6/bits/unique_ptr.h:49:28: note: declared here
-   template<typename> class auto_ptr;
-                            ^~~~~~~~
-In file included from /usr/local/lib/R/site-library/rstan/include/rstan/rstaninc.hpp:3:0,
-                 from file51bead5fd.cpp:414:
-/usr/local/lib/R/site-library/rstan/include/rstan/stan_fit.hpp:547:10: warning: ‘template<class> class std::auto_ptr’ is deprecated [-Wdeprecated-declarations]
-     std::auto_ptr<rstan_sample_writer> sample_writer_ptr;
-          ^~~~~~~~
-In file included from /usr/include/c++/6/bits/locale_conv.h:41:0,
-                 from /usr/include/c++/6/locale:43,
-                 from /usr/local/lib/R/site-library/BH/include/boost/lexical_cast/detail/converter_lexical_streams.hpp:43,
-                 from /usr/local/lib/R/site-library/BH/include/boost/lexical_cast/detail/converter_lexical.hpp:54,
-                 from /usr/local/lib/R/site-library/BH/include/boost/lexical_cast/try_lexical_convert.hpp:42,
-                 from /usr/local/lib/R/site-library/BH/include/boost/lexical_cast.hpp:32,
-                 from /usr/local/lib/R/site-library/BH/include/boost/math/tools/convert_from_string.hpp:15,
-                 from /usr/local/lib/R/site-library/BH/include/boost/math/constants/constants.hpp:13,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/stan/math/prim/scal/fun/constants.hpp:4,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/stan/math/rev/core/operator_unary_plus.hpp:7,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/stan/math/rev/core.hpp:34,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/stan/math/rev/mat.hpp:4,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/stan/math.hpp:4,
-                 from /usr/local/lib/R/site-library/StanHeaders/include/src/stan/model/model_header.hpp:4,
-                 from file51bead5fd.cpp:8:
-/usr/include/c++/6/bits/unique_ptr.h:49:28: note: declared here
-   template<typename> class auto_ptr;
-                            ^~~~~~~~
-~~~
-
-~~~
-Warning in is.na(x): is.na() applied to non-(list or vector) of type 'NULL'
-~~~
-
-~~~
-Warning in FUN(X[[i]], ...): data with name N is not numeric and not used
-~~~
-
-~~~
-Warning in is.na(x): is.na() applied to non-(list or vector) of type 'NULL'
-~~~
-
-~~~
-Warning in FUN(X[[i]], ...): data with name log_weight is not numeric and
-not used
-~~~
-
-~~~
-Warning in is.na(x): is.na() applied to non-(list or vector) of type 'NULL'
-~~~
-
-~~~
-Warning in FUN(X[[i]], ...): data with name hindfoot_length is not numeric
-and not used
-~~~
-{:.text-document title="{{ site.handouts }}"}
-
-
-~~~r
-print(fit)
-~~~
-{:.input}
-~~~
-Stan model 'worksheet' does not contain samples.
-~~~
-{:.output}
+## 

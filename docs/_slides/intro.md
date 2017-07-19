@@ -18,5 +18,5 @@
 
 - Write a `lm` formula with an interaction term
 - Use a non-gaussian family in the `glm` function
-- Add a "random effect" to a `glmer` formula
-- Write a fully customizeable Stan formula
+- Add a "random effect" to a `lmer` formula
+- Understand a fully customizeable Stan formula

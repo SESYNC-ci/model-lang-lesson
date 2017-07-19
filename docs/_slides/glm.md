@@ -9,24 +9,41 @@ The `lm` function treats the response variable as numeric---the `glm` function l
 
 ## GLM families
 
-| family | support | **default** link |
-| `gaussian` | all reals | **identity**, log, inverse |
-| `binomial` | boolean | **logit**, probit, cauchit, log, cloglog |
-| `poisson` | non-negative integers | **log**, identity, sqrt |
-| `Gamma` | positive reals | **inverse**, identity, log |
-| `inverse.gaussian` | positive reals| **"1/mu^2"**, inverse, identity, log |
+The `family` argument determines the family of probability distributions in which the response variable belongs. A key difference between families is the data type and range.
+
+| Family | Support | *Default* link |
+|--------|---------|------------------|
+| `gaussian` | `numeric` | *identity*, log, inverse |
+| `binomial` | 2-level `factor` | *logit*, probit, cauchit, log, cloglog |
+| `poisson` | non-negative `integer` | *log*, identity, sqrt |
+| `Gamma` | positive `numeric` | *inverse*, identity, log |
+| `inverse.gaussian` | positive `numeric` | *"1/mu^2"*, inverse, identity, log |
 
 ===
 
 ## Exercise 2
 
-The default value for `family` is `gaussian(link = 'identity')`. Replace `lm` with `glm` (changing nothing else), to again fit the formula `log(weight) ~ species_id`. Compare the `summary()`. How, if at all, are the parameters, the parameter errors, or the description of residuals different?
+The default value for `family` is `gaussian(link = 'identity')`. Replace `lm` with `glm` (changing nothing else), to again fit the formula `log(weight) ~ species_id`. Compare the `summary()` between `lm()` and `glm()`, and identify something that is the same and something that is different in the output.
+
+===
+
+## Link with care
+
+Correct use of the `link` argument to the family requires in-depth knowledge about generallize linear models---not our objective here. A common mistake to avoid, however, is assuming that `glm` applies the transfromation given as `link` to the response variable.
+
+
+~~~r
+fit <- glm(weight ~ hindfoot_length,
+    family = gaussian(link = `log`),
+    data = animals)
+~~~
+{:.input}
 
 ===
 
 ## Logistic regression
 
-Calling `glm` with the `familly = binomial` (using the default link) performs logistic regression.
+Calling `glm` with `familly = binomial` using the default "logit" link performs logistic regression.
 
 
 ~~~r
@@ -44,25 +61,39 @@ summary(fit)
 ~~~
 
 Call:
-lm(formula = log(weight) ~ hindfoot_length, data = animals)
+glm(formula = sex ~ hindfoot_length, family = binomial, data = animals)
 
-Residuals:
-     Min       1Q   Median       3Q      Max 
--2.39077 -0.21749 -0.05046  0.15017  2.08463 
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-1.366  -1.207   1.057   1.124   1.246  
 
 Coefficients:
-                 Estimate Std. Error t value Pr(>|t|)    
-(Intercept)     1.5604389  0.0072416   215.5   <2e-16 ***
-hindfoot_length 0.0650048  0.0002357   275.8   <2e-16 ***
+                 Estimate Std. Error z value Pr(>|z|)    
+(Intercept)     -0.179215   0.036495  -4.911 9.08e-07 ***
+hindfoot_length  0.009571   0.001186   8.068 7.17e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 0.3943 on 30736 degrees of freedom
-  (4811 observations deleted due to missingness)
-Multiple R-squared:  0.7122,	Adjusted R-squared:  0.7122 
-F-statistic: 7.607e+04 on 1 and 30736 DF,  p-value: < 2.2e-16
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 43408  on 31369  degrees of freedom
+Residual deviance: 43343  on 31368  degrees of freedom
+  (4179 observations deleted due to missingness)
+AIC: 43347
+
+Number of Fisher Scoring iterations: 3
 ~~~
 {:.output}
+
+===
+
+## Weight
+
+Both the `lm` and `glm` function allow a vector of `weights` the same length as the response. Weights can be necessary for logistic regression, depending on the format of the data. The `binomial` family `glm` works with three different response variable formats.
+
+1. `factor` with two levels, as shown in the table above
+1. `matrix` of type `integer` with two columns for the count of "successes" and "failures".
+1. `numeric` between 0 and 1, specifying the proprtion of "successes" out of `weights` trials.
 
 ===
 
