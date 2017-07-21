@@ -77,6 +77,10 @@ saveRDS(samp, 'stanimals.RDS')
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+## Parameter "samples"
+
+An example `samp` output, saved to "RDS" after a long-running Stan job, is available in the handout's data folder. Each row represents an equally likely set of coefficients for the model, as judged by its resulting fit to the data.
+
 ===
 
 ## Summary

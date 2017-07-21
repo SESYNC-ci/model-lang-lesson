@@ -3,17 +3,17 @@
 
 ## Linear Mixed Models
 
-The [lme4](){:.rlib} package expands the formula "mini-language" to allow descriptions of "random effects". In the context of this package, variables added to the right of the "~" in the usual way are "fixed effects"---they consume a well-defined number of degrees of freedom. Variables added within "(...|...)" are "random effects".
+The [lme4](){:.rlib} package expands the formula "mini-language" to allow descriptions of "random effects". In the context of this package, variables added to the right of the `~` in the usual way are "fixed effects"---they consume a well-defined number of degrees of freedom. Variables added within `(...|...)` are "random effects".
 
 ===
 
 The "variable intercepts" and "random slopes" classes of model are the two most common extensions to a formula with one variable.
 
-| Formula         | Description |
-|-----------------|-------------|
-| `y ~ a`         | constant and one fixed effect |
-| `y ~ (1 | b) + a` | random intercept for each level in `b` and one fixed effect |
-| `y ~ (1 + a | b)` | random intercepts and "slopes" w.r.t. `a` for each level in `b`|
+| Formula           | Description                                                     |
+|-------------------|-----------------------------------------------------------------|
+| `y ~ a`           | constant and one fixed effect                                   |
+| `y ~ (1 | b) + a` | random intercept for each level in `b` and one fixed effect     |
+| `y ~ (1 + a | b)` | random intercepts and "slopes" w.r.t. `a` for each level in `b` |
 
 ===
 
