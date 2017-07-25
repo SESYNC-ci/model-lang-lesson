@@ -11,7 +11,7 @@ The formula requires a response variable left of a "~" and any number of predict
 | `y ~ a + b`            | `y ~ 1 + a + b`       | constant and two predictors                                                               |
 | `y ~ a:b`              |                       | constant and one predictor, the interaction of (at least) one factor and another variable |
 | `y ~ a*b`              | `y ~ 1 + a + b + a:b` | constant and three predictors                                                             |
-| `y ~ a*b - a           | `y ~ 1 + b + a:b`     | constant and two predictors                                                               |
+| `y ~ a*b - a`          | `y ~ 1 + b + a:b`     | constant and two predictors                                                               |
 | `y ~ (a + b + ... )^n` |                       | constant and all combinations of predictors up to order `n`                               |
 
 ===
