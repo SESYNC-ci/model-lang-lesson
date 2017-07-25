@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	  <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini-Languages for Statistical Models</title>
+<meta name="description" content="The formula languages in R and Stan.">
+<link rel="canonical" href="https://sesync-ci.github.io/model-lang-lesson/course/archive.html">
+<link rel="stylesheet" href="/model-lang-lesson/css/default.css">
+<link rel="stylesheet" href="/model-lang-lesson/css/static.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML" type="text/javascript"></script>
+
+	  <link rel="stylesheet" href="https://cdn.rawgit.com/sesync-ci/lesson-style/v1.2/docs/css/static.css">
+  </head>
+  <body>
+	  <div class="page-content">
+	    <div class="wrapper">
+        
+        
+<h1 style="text-transform: none;" id="mini-languages-for-statistical-models">Mini-Languages for Statistical Models</h1>
+
+<p>Lesson 6 with <em>Ian Carroll</em></p>
+
+<h2 id="contents">Contents</h2>
+
+<ul>
+  <li><a href="#/slides/intro">Objectives for this lesson</a></li>
+  <li><a href="#/slides/formula">R’s formula notation</a></li>
+  <li><a href="#/slides/lm">Linear models</a></li>
+  <li><a href="#/slides/glm">Generalized linear models</a></li>
+  <li><a href="#/slides/lme4">Linear Mixed Models</a></li>
+  <li><a href="#/slides/stan">Meet Stan</a></li>
+</ul>
+
+<hr />
+
+<p><a name="/slides/intro"></a></p>
+
+<h2 id="objectives-for-this-lesson">Objectives for this lesson</h2>
+
+<ul>
+  <li>Learn about R functions and extensions for statistical modeling</li>
+  <li>Understand the “formula” part of model specification</li>
+  <li>Meet Stan, a programming language for probability statements</li>
+  <li>Pay no attention to these important topics:
+    <ul>
+      <li>Experimental/Sampling design</li>
+      <li>Model validation</li>
+      <li>Hypothesis tests</li>
+      <li>Model comparison</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="specific-achievements">Specific achievements</h2>
+
+<ul>
+  <li>Write a <code class="highlighter-rouge">lm</code> formula with an interaction term</li>
+  <li>Use a non-gaussian family in the <code class="highlighter-rouge">glm</code> function</li>
+  <li>Add a “random effect” to a <code class="highlighter-rouge">lmer</code> formula</li>
+  <li>Understand a fully customizeable Stan formula</li>
+</ul>
+
+<p class="ToS"><a href="#/slides/intro">Top of Section</a></p>
+
+<hr />
+
+<p><a name="/slides/formula"></a></p>
+
+<h2 id="rs-formula-notation">R’s formula notation</h2>
+
+<p>The basic function for fitting a regression in R is the <code class="highlighter-rouge">lm</code> function, standing for linear model.</p>
+
+<div class="language-r input highlighter-rouge"><pre class="highlight"><code><span class="n">wt_len</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">weight</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">hindfoot_length</span><span class="w">
+</span><span class="n">wt_len.fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="n">formula</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wt_len</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">animals</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">lm</code> function uses the given formula and the data types of <code class="highlighter-rouge">portal</code> to compute the best fitting model in this family (i.e. determine the optimum coefficients)</p>
+
+<h2 id="mini-language">Mini-language</h2>
+
+<p>The implementation of <code class="highlighter-rouge">lm</code> is a specific solution to a general problem: how can a human easily write down a statistical model that a machine can interpret, relate to data, and optimize through a given fitting procedure?</p>
+
+<p>For the <code class="highlighter-rouge">lm</code> function, the answers are:</p>
+
+<ol>
+  <li>Use a unquoted “formula” expression, mixing variable names and algebra-like operators, that maps to a design matrix.</li>
+  <li>Check the variables used in the formula to complete the design matrix.</li>
+  <li>Compute the <a href="https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)">linear least-squares estimator</a> and more.</li>
+</ol>
+
+<p>Note that “the details” are left to the <code class="highlighter-rouge">lm</code> function where possible. For example, whether a variable is a factor or numeric is read from the data frame; the formula does not distinguish between data types.</p>
+
+<h2 id="mini-language-1">Mini-language</h2>
+
+<p>Across different packages in R, this formula “mini-language” has evolved to allow complex model specification. Each one adds syntax to the formula or new arguments to the fitting function. On a far-distant branch of this evolution is the Stan modeling language, which provides the greatest flexibility but demands in return the most descriptive language.</p>
+
+<p class="ToS"><a href="#/slides/formula">Top of Section</a></p>
+
+<hr />
+
+<p><a name="/slides/lm"></a></p>
+
+<h2 id="linear-models">Linear models</h2>
+
+<p>The formula requires a response variable left of a “~” and any number of predictors to its right.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Formula</td>
+      <td>Equivalent</td>
+      <td>Description</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">y ~ a</code></td>
+      <td><code class="highlighter-rouge">y ~ 1 + a</code></td>
+      <td>constant and one predictor</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">y ~ -1 + a</code></td>
+      <td><code class="highlighter-rouge">y ~ 0 + a</code></td>
+      <td>one predictor with no constant</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">y ~ a + b</code></td>
+      <td><code class="highlighter-rouge">y ~ 1 + a + b</code></td>
+      <td>constant and two predictors</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">y ~ a:b</code></td>
+      <td> </td>
+      <td>constant and one predictor, the interaction of (at least) one factor and another variable</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">y ~ a*b</code></td>
+      <td><code class="highlighter-rouge">y ~ 1 + a + b + a:b</code></td>
+      <td>constant and three predictors</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">y ~ a*b - a</code></td>
+      <td><code class="highlighter-rouge">y ~ 1 + b + a:b</code></td>
+      <td>constant and two predictors</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">y ~ (a + b + ... )^n</code></td>
+      <td> </td>
+      <td>constant and all combinations of predictors up to order <code class="highlighter-rouge">n</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="linear-model">Linear model</h2>
+
+<p>In addition, certain functions are allowed within the formula definition.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><pre class="highlight"><code><span class="n">animals</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read.csv</span><span class="p">(</span><span class="s1">'data/animals.csv'</span><span class="p">,</span><span class="w"> </span><span class="n">stringsAsFactors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">,</span><span class="w"> </span><span class="n">na.strings</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">''</span><span class="p">)</span><span class="w">
+</span><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="w">
+  </span><span class="nf">log</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">hindfoot_length</span><span class="p">,</span><span class="w">
+  </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">animals</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+
+<div class="language-r input highlighter-rouge"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+<div class="output highlighter-rouge"><pre class="highlight"><code>Linear mixed model fit by REML ['lmerMod']
+Formula: log(weight) ~ (1 | species_id) + hindfoot_length
+   Data: animals
+
+REML criterion at convergence: -11966.7
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-11.7117  -0.4802   0.1040   0.6123   7.4102 
+
+Random effects:
+ Groups     Name        Variance Std.Dev.
+ species_id (Intercept) 0.25479  0.5048  
+ Residual               0.03943  0.1986  
+Number of obs: 30738, groups:  species_id, 24
+
+Fixed effects:
+                 Estimate Std. Error t value
+(Intercept)     2.2138725  0.1051703   21.05
+hindfoot_length 0.0436769  0.0007761   56.28
+
+Correlation of Fixed Effects:
+            (Intr)
+hndft_lngth -0.175
+</code></pre>
+</div>
+
+<h2 id="exercise-1">Exercise 1</h2>
+
+<p>Regress hindfoot_length against weight and species_id. Does it appear that the Chihuahuan Desert’s common kangaroo rat (DM) have <em>inordinately</em> large feet for their weight?</p>
+
+<h2 id="pay-attention-to-factors">Pay attention to factors</h2>
+
+<p>Data type matters in statistical modelling. For the predictors in a linear model, the most important distinction is discrete versus continuous.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><pre class="highlight"><code><span class="n">animals</span><span class="o">$</span><span class="n">species_id</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">animals</span><span class="o">$</span><span class="n">species_id</span><span class="p">)</span><span class="w">
+</span><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="w">
+  </span><span class="nf">log</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">species_id</span><span class="p">,</span><span class="w">
+  </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">animals</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+
+<div class="language-r input highlighter-rouge"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+<div class="output highlighter-rouge"><pre class="highlight"><code>
+Call:
+lm(formula = log(weight) ~ species_id, data = animals)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.28157 -0.10063  0.02803  0.12574  1.48272 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   2.12857    0.03110  68.448  &lt; 2e-16 ***
+species_idDM  1.62159    0.03117  52.031  &lt; 2e-16 ***
+species_idDO  1.74519    0.03134  55.690  &lt; 2e-16 ***
+species_idDS  2.63791    0.03139  84.024  &lt; 2e-16 ***
+species_idNL  2.89645    0.03170  91.373  &lt; 2e-16 ***
+species_idOL  1.29724    0.03181  40.780  &lt; 2e-16 ***
+species_idOT  1.04031    0.03142  33.110  &lt; 2e-16 ***
+species_idOX  0.91176    0.09066  10.056  &lt; 2e-16 ***
+species_idPB  1.30426    0.03135  41.609  &lt; 2e-16 ***
+species_idPE  0.92374    0.03165  29.188  &lt; 2e-16 ***
+species_idPF -0.07717    0.03155  -2.446 0.014447 *  
+species_idPH  1.28769    0.04869  26.446  &lt; 2e-16 ***
+species_idPI  0.82629    0.08004  10.323  &lt; 2e-16 ***
+species_idPL  0.79433    0.04665  17.029  &lt; 2e-16 ***
+species_idPM  0.90396    0.03189  28.349  &lt; 2e-16 ***
+species_idPP  0.69278    0.03133  22.114  &lt; 2e-16 ***
+species_idPX  0.81448    0.15075   5.403 6.61e-08 ***
+species_idRF  0.45257    0.03934  11.505  &lt; 2e-16 ***
+species_idRM  0.20908    0.03137   6.665 2.70e-11 ***
+species_idRO  0.18447    0.08004   2.305 0.021191 *  
+species_idRX  0.56824    0.15075   3.769 0.000164 ***
+species_idSF  1.87613    0.04504  41.656  &lt; 2e-16 ***
+species_idSH  2.10024    0.03572  58.803  &lt; 2e-16 ***
+species_idSO  1.80152    0.04504  40.000  &lt; 2e-16 ***
+species_idSS  2.32672    0.15075  15.434  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.2086 on 32258 degrees of freedom
+  (3266 observations deleted due to missingness)
+Multiple R-squared:  0.9216,	Adjusted R-squared:  0.9215 
+F-statistic: 1.58e+04 on 24 and 32258 DF,  p-value: &lt; 2.2e-16
+</code></pre>
+</div>
+
+<p>The difference between 1 and 24 degrees of freedom between the last two models—with one fixed effect each—arises from the discreteness of <code class="highlighter-rouge">species_id</code>.</p>
+
+<p class="ToS"><a href="#/slides/lm">Top of Section</a></p>
+
+<hr />
+
+<p><a name="/slides/glm"></a></p>
+
+<h2 id="generalized-linear-models">Generalized linear models</h2>
+
+<p>The <code class="highlighter-rouge">lm</code> function treats the response variable as numeric—the <code class="highlighter-rouge">glm</code> function lifts this restriction and others. Not through the <code class="highlighter-rouge">formula</code> syntax, which is the same for calls to <code class="highlighter-rouge">lm</code>  and <code class="highlighter-rouge">glm</code>, but through addition of the <code class="highlighter-rouge">family</code> argument.</p>
+
+<h2 id="glm-families">GLM families</h2>
+
+<p>The <code class="highlighter-rouge">family</code> argument determines the family of probability distributions in which the response variable belongs. A key difference between families is the data type and range.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Family</th>
+      <th>Support</th>
+      <th><em>Default</em> link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="highlighter-rouge">gaussian</code></td>
+      <td><code class="highlighter-rouge">numeric</code></td>
+      <td><em>identity</em>, log, inverse</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">binomial</code></td>
+      <td>2-level <code class="highlighter-rouge">factor</code></td>
+      <td><em>logit</em>, probit, cauchit, log, cloglog</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">poisson</code></td>
+      <td>non-negative <code class="highlighter-rouge">integer</code></td>
+      <td><em>log</em>, identity, sqrt</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">Gamma</code></td>
+      <td>positive <code class="highlighter-rouge">numeric</code></td>
+      <td><em>inverse</em>, identity, log</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">inverse.gaussian</code></td>
+      <td>positive <code class="highlighter-rouge">numeric</code></td>
+      <td><em>“1/mu^2”</em>, inverse, identity, log</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="exercise-2">Exercise 2</h2>
+
+<p>The default value for <code class="highlighter-rouge">family</code> is <code class="highlighter-rouge">gaussian(link = 'identity')</code>. Replace <code class="highlighter-rouge">lm</code> with <code class="highlighter-rouge">glm</code> (changing nothing else), to again fit the formula <code class="highlighter-rouge">log(weight) ~ species_id</code>. Compare the <code class="highlighter-rouge">summary()</code> between <code class="highlighter-rouge">lm()</code> and <code class="highlighter-rouge">glm()</code>, and identify something that is the same and something that is different in the output.</p>
+
+<h2 id="link-with-care">Link with care</h2>
+
+<p>Correct use of the <code class="highlighter-rouge">link</code> argument to the family requires in-depth knowledge about generallize linear models—not our objective here. A common mistake to avoid, however, is assuming that <code class="highlighter-rouge">glm</code> applies the transfromation given as <code class="highlighter-rouge">link</code> to the response variable.</p>
+
+<div class="language-r input highlighter-rouge"><pre class="highlight"><code><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">glm</span><span class="p">(</span><span class="n">weight</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">hindfoot_length</span><span class="p">,</span><span class="w">
+    </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gaussian</span><span class="p">(</span><span class="n">link</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">`log`</span><span class="p">),</span><span class="w">
+    </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">animals</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="logistic-regression">Logistic regression</h2>
+
+<p>Calling <code class="highlighter-rouge">glm</code> with <code class="highlighter-rouge">familly = binomial</code> using the default “logit” link performs logistic regression.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><pre class="highlight"><code><span class="n">animals</span><span class="o">$</span><span class="n">sex</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">animals</span><span class="o">$</span><span class="n">sex</span><span class="p">)</span><span class="w">
+</span><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">glm</span><span class="p">(</span><span class="n">sex</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">hindfoot_length</span><span class="p">,</span><span class="w">
+           </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">binomial</span><span class="p">,</span><span class="w">
+           </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">animals</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+
+<div class="language-r input highlighter-rouge"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+<div class="output highlighter-rouge"><pre class="highlight"><code>
+Call:
+glm(formula = sex ~ hindfoot_length, family = binomial, data = animals)
+
+Deviance Residuals: 
+   Min      1Q  Median      3Q     Max  
+-1.366  -1.207   1.057   1.124   1.246  
+
+Coefficients:
+                 Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)     -0.179215   0.036495  -4.911 9.08e-07 ***
+hindfoot_length  0.009571   0.001186   8.068 7.17e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 43408  on 31369  degrees of freedom
+Residual deviance: 43343  on 31368  degrees of freedom
+  (4179 observations deleted due to missingness)
+AIC: 43347
+
+Number of Fisher Scoring iterations: 3
+</code></pre>
+</div>
+
+<h2 id="weight">Weight</h2>
+
+<p>Both the <code class="highlighter-rouge">lm</code> and <code class="highlighter-rouge">glm</code> function allow a vector of <code class="highlighter-rouge">weights</code> the same length as the response. Weights can be necessary for logistic regression, depending on the format of the data. The <code class="highlighter-rouge">binomial</code> family <code class="highlighter-rouge">glm</code> works with three different response variable formats.</p>
+
+<ol>
+  <li><code class="highlighter-rouge">factor</code> with two levels, as shown in the table above</li>
+  <li><code class="highlighter-rouge">matrix</code> of type <code class="highlighter-rouge">integer</code> with two columns for the count of “successes” and “failures”.</li>
+  <li><code class="highlighter-rouge">numeric</code> between 0 and 1, specifying the proprtion of “successes” out of <code class="highlighter-rouge">weights</code> trials.</li>
+</ol>
+
+<h2 id="exercise-3">Exercise 3</h2>
+
+<p>You are standing in the Chihuahuan desert, when a pocket mouse (genus Perognathus) suddenly runs up your pant leg. It doesn’t weigh your pocket down much, relative to your many similar pocket mouse experiences. Run a binomial family GLM on the two Perognathus species in the Portal data that may help you predict to which species it belongs. Hint: The second <code class="highlighter-rouge">level()</code> of a factor is the “success” in a binomial GLM.</p>
+
+<!--
+[View solution](#solution-3)
+{:.notes}
+-->
+
+<p class="ToS"><a href="#/slides/glm">Top of Section</a></p>
+
+<hr />
+
+<p><a name="/slides/lme4"></a></p>
+
+<h2 id="linear-mixed-models">Linear Mixed Models</h2>
+
+<p>The <a href="" class="rlib">lme4</a> package expands the formula “mini-language” to allow descriptions of “random effects”. In the context of this package, variables added to the right of the <code class="highlighter-rouge">~</code> in the usual way are “fixed effects”—they consume a well-defined number of degrees of freedom. Variables added within <code class="highlighter-rouge">(...|...)</code> are “random effects”.</p>
+
+<p>The “variable intercepts” and “random slopes” classes of model are the two most common extensions to a formula with one variable.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Formula</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="highlighter-rouge">y ~ a</code></td>
+      <td>constant and one fixed effect</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">y ~ (1 | b) + a</code></td>
+      <td>random intercept for each level in <code class="highlighter-rouge">b</code> and one fixed effect</td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">y ~ (1 + a | b)</code></td>
+      <td>random intercepts and “slopes” w.r.t. <code class="highlighter-rouge">a</code> for each level in <code class="highlighter-rouge">b</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="random-intercept">Random intercept</h2>
+
+<p>The <code class="highlighter-rouge">lmer</code> and <code class="highlighter-rouge">glmer</code> functions fit linear and generalized linear models with the <code class="highlighter-rouge">lme4</code> formula syntax.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">lme4</span><span class="p">)</span><span class="w">
+</span><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lmer</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">species_id</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hindfoot_length</span><span class="p">,</span><span class="w">
+            </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">animals</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+
+<div class="language-r input highlighter-rouge"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+<div class="output highlighter-rouge"><pre class="highlight"><code>Linear mixed model fit by REML ['lmerMod']
+Formula: log(weight) ~ (1 | species_id) + hindfoot_length
+   Data: animals
+
+REML criterion at convergence: -11966.7
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-11.7117  -0.4802   0.1040   0.6123   7.4102 
+
+Random effects:
+ Groups     Name        Variance Std.Dev.
+ species_id (Intercept) 0.25479  0.5048  
+ Residual               0.03943  0.1986  
+Number of obs: 30738, groups:  species_id, 24
+
+Fixed effects:
+                 Estimate Std. Error t value
+(Intercept)     2.2138725  0.1051703   21.05
+hindfoot_length 0.0436769  0.0007761   56.28
+
+Correlation of Fixed Effects:
+            (Intr)
+hndft_lngth -0.175
+</code></pre>
+</div>
+
+<p class="notes">The familiar assessment of model residuals is absent from the summary due to the lack of a widely accepted measure of null and residual deviance. The notions of model saturation, degrees of freedom, and independence of observations have all crossed onto thin ice.</p>
+
+<h2 id="lack-of-independence">Lack of independence</h2>
+
+<p>Models with random effects should be understood as specifying multiple, overlapping probability statements about the observations.</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+log(weight_i) &\sim Normal(\mu_i, \sigma_0^2) \\
+\mu_i &= \beta_0 + \beta_1[species\_id_i] + \beta_2 * hindfoot\_length_i \\
+\beta_1[j] &\sim Normal(0, \sigma_1^2) \\
+\end{align} %]]></script>
+
+<p class="notes">In a <code class="highlighter-rouge">lm</code> or <code class="highlighter-rouge">glm</code> fit, each response is conditionally independent, given it’s predictors and the model coefficients. Each observation corresponds to it’s own probability statement. In a model with random effects, each response is no longer conditionally independent, given it’s predictors and model coefficients.</p>
+
+<h2 id="exercise-4">Exercise 4</h2>
+
+<p>Adjust the formula <code class="highlighter-rouge">log(weight) ~ hindfoot_length</code> to fit a “random intercepts” model, grouping by a different categorical variable (i.e. not species_id) in the <code class="highlighter-rouge">animals</code> data frame.</p>
+
+<h2 id="random-slopes">Random slopes</h2>
+
+<p>Adding a numeric variable after the constant within a grouping specified by <code class="highlighter-rouge">(...|...)</code> produces a “random slope” model. Here, separate coefficients for hindfoot_length are allowed for each species.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><pre class="highlight"><code><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lmer</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hindfoot_length</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">species_id</span><span class="p">),</span><span class="w">
+            </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">animals</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+
+<div class="language-r input highlighter-rouge"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+<div class="output highlighter-rouge"><pre class="highlight"><code>
+Call:
+lm(formula = log(weight) ~ species_id, data = animals)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.28157 -0.10063  0.02803  0.12574  1.48272 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   2.12857    0.03110  68.448  &lt; 2e-16 ***
+species_idDM  1.62159    0.03117  52.031  &lt; 2e-16 ***
+species_idDO  1.74519    0.03134  55.690  &lt; 2e-16 ***
+species_idDS  2.63791    0.03139  84.024  &lt; 2e-16 ***
+species_idNL  2.89645    0.03170  91.373  &lt; 2e-16 ***
+species_idOL  1.29724    0.03181  40.780  &lt; 2e-16 ***
+species_idOT  1.04031    0.03142  33.110  &lt; 2e-16 ***
+species_idOX  0.91176    0.09066  10.056  &lt; 2e-16 ***
+species_idPB  1.30426    0.03135  41.609  &lt; 2e-16 ***
+species_idPE  0.92374    0.03165  29.188  &lt; 2e-16 ***
+species_idPF -0.07717    0.03155  -2.446 0.014447 *  
+species_idPH  1.28769    0.04869  26.446  &lt; 2e-16 ***
+species_idPI  0.82629    0.08004  10.323  &lt; 2e-16 ***
+species_idPL  0.79433    0.04665  17.029  &lt; 2e-16 ***
+species_idPM  0.90396    0.03189  28.349  &lt; 2e-16 ***
+species_idPP  0.69278    0.03133  22.114  &lt; 2e-16 ***
+species_idPX  0.81448    0.15075   5.403 6.61e-08 ***
+species_idRF  0.45257    0.03934  11.505  &lt; 2e-16 ***
+species_idRM  0.20908    0.03137   6.665 2.70e-11 ***
+species_idRO  0.18447    0.08004   2.305 0.021191 *  
+species_idRX  0.56824    0.15075   3.769 0.000164 ***
+species_idSF  1.87613    0.04504  41.656  &lt; 2e-16 ***
+species_idSH  2.10024    0.03572  58.803  &lt; 2e-16 ***
+species_idSO  1.80152    0.04504  40.000  &lt; 2e-16 ***
+species_idSS  2.32672    0.15075  15.434  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.2086 on 32258 degrees of freedom
+  (3266 observations deleted due to missingness)
+Multiple R-squared:  0.9216,	Adjusted R-squared:  0.9215 
+F-statistic: 1.58e+04 on 24 and 32258 DF,  p-value: &lt; 2.2e-16
+</code></pre>
+</div>
+
+<p class="notes">Allowing each animal to use a constant and hindfoot_length coefficient shared only by other members of its <code class="highlighter-rouge">species</code> is a lot like fitting separate regressions for each species. Actual utility arises when combining this random slope predictor with other predictors <em>not</em> grouped by species.</p>
+
+<h2 id="generalized-mixed-models">Generalized Mixed Models</h2>
+
+<p>The <code class="highlighter-rouge">glmer</code> function merely adds to <code class="highlighter-rouge">lmer</code> the option to specify an exponential family distribution for the response variable.</p>
+
+<p class="ToS"><a href="#/slides/lme4">Top of Section</a></p>
+
+<hr />
+
+<p><a name="/slides/stan"></a></p>
+
+<h2 id="meet-stan">Meet Stan</h2>
+
+<p>Stan is the name of a program that performs an entirely different kind of model fitting, and the Stan modelling language is yet another way of writing a “formula”. Stan is similar to JAGS and BUGS: it is a “sampler”, but does not use the Gibbs algorithm.</p>
+
+<h2 id="sampling-vs-fitting">Sampling vs. Fitting</h2>
+
+<p>The result of model fitting through <code class="highlighter-rouge">lm</code> and its descendents in R is an estimated coefficient coupled with the uncertainty in that estimate.</p>
+
+<p>The results produced by Stan are tables of numbers with a column for each coefficient in the model. Each row represents an equally likely set of coefficients for the model, as judged by its resulting fit to the data.</p>
+
+<h2 id="an-example">An example</h2>
+
+<p>The formulas we use previously to describe a “random intercepts” model are directly included in a Stan formula.</p>
+
+<div class="text-document highlighter-rouge" title="worksheet-6.stan"><pre class="highlight"><code>data {
+  int N;
+  vector[N] log_weight;
+  vector[N] hindfoot_length;
+  int species_id[N];
+  int M;
+} 
+parameters {
+  real beta0;
+  vector[M] beta1;
+  real beta2;
+  real&lt;lower=0&gt; sigma;
+  real&lt;lower=0&gt; sigma_genus;
+}
+transformed parameters {
+  vector[N] mu;
+  for (i in 1:N)
+    mu = beta0 + beta1[species_id]+ hindfoot_length * beta2;
+}
+model {
+  log_weight ~ normal(mu, sigma);
+  beta0 ~ normal(0, 10);
+  beta1 ~ normal(0, sigma_genus);
+  beta2 ~ normal(0, 10);
+  sigma_genus ~ cauchy(0, 5);
+}
+</code></pre>
+</div>
+
+<h1 id="rstan">RStan</h1>
+
+<p>The <a href="" class="rlib">rstan</a> package is a wrapper for sending data to the Stan program and getting back results.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">rstan</span><span class="p">)</span><span class="w">
+
+</span><span class="n">stanimals</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">animals</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">select</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span><span class="w"> </span><span class="n">species_id</span><span class="p">,</span><span class="w"> </span><span class="n">hindfoot_length</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">na.omit</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">log_weight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="n">weight</span><span class="p">),</span><span class="w">
+         </span><span class="n">species_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.integer</span><span class="p">(</span><span class="n">factor</span><span class="p">(</span><span class="n">species_id</span><span class="p">)))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">select</span><span class="p">(</span><span class="o">-</span><span class="n">weight</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">species_id</span><span class="p">)</span><span class="w">
+</span><span class="n">stanimals</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="w">
+  </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">stanimals</span><span class="p">),</span><span class="w">
+  </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">stanimals</span><span class="o">$</span><span class="n">species_idx</span><span class="p">),</span><span class="w">
+  </span><span class="n">as.list</span><span class="p">(</span><span class="n">stanimals</span><span class="p">))</span><span class="w">
+
+</span><span class="n">samp</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">stan</span><span class="p">(</span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'worksheet-6.stan'</span><span class="p">,</span><span class="w">
+             </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stanimals</span><span class="p">,</span><span class="w">
+             </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1000</span><span class="p">,</span><span class="w"> </span><span class="n">chains</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span><span class="p">)</span><span class="w">
+</span><span class="n">saveRDS</span><span class="p">(</span><span class="n">samp</span><span class="p">,</span><span class="w"> </span><span class="s1">'stanimals.RDS'</span><span class="p">)</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="parameter-samples">Parameter “samples”</h2>
+
+<p>An example <code class="highlighter-rouge">samp</code> output, saved to “RDS” after a long-running Stan job, is available in the handout’s data folder. Each row represents an equally likely set of coefficients for the model, as judged by its resulting fit to the data.</p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>Several “formula” languages co-exist in R packages
+    <ul>
+      <li>Linear models and generalized linear models are similar</li>
+      <li>Mixed effects models use grouping to add “random effects”</li>
+    </ul>
+  </li>
+  <li>
+    <p>“Generalized” modeling functiongs add a <code class="highlighter-rouge">family</code> specification.</p>
+  </li>
+  <li>Sampling with Stan lets you specify any structure and use any probability distribution. You pay a great cost in speed and difficulty.</li>
+</ul>
+
+<p class="ToS"><a href="#/slides/stan">Top of Section</a></p>
+
+<hr />
+
+
+
+	    </div>
+	  </div>
+  </body>
+</html>
