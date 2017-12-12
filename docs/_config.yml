@@ -8,7 +8,7 @@ handouts:
   - data/animals.csv
   - data/plots.csv
   - data/species.csv
-  - data/stanimals.csv
+  - data/stanimals.RDS
 tag: v0.1
 lesson: 6
 instructor: Ian Carroll
