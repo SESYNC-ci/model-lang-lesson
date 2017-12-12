@@ -34,30 +34,25 @@ summary(fit)
 ~~~
 {:.input}
 ~~~
-Linear mixed model fit by REML ['lmerMod']
-Formula: log(weight) ~ (1 | species_id) + hindfoot_length
-   Data: animals
 
-REML criterion at convergence: -11966.7
+Call:
+lm(formula = log(weight) ~ hindfoot_length, data = animals)
 
-Scaled residuals: 
+Residuals:
      Min       1Q   Median       3Q      Max 
--11.7117  -0.4802   0.1040   0.6123   7.4102 
+-2.39077 -0.21749 -0.05046  0.15017  2.08463 
 
-Random effects:
- Groups     Name        Variance Std.Dev.
- species_id (Intercept) 0.25479  0.5048  
- Residual               0.03943  0.1986  
-Number of obs: 30738, groups:  species_id, 24
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)     1.5604389  0.0072416   215.5   <2e-16 ***
+hindfoot_length 0.0650048  0.0002357   275.8   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Fixed effects:
-                 Estimate Std. Error t value
-(Intercept)     2.2138725  0.1051703   21.05
-hindfoot_length 0.0436769  0.0007761   56.28
-
-Correlation of Fixed Effects:
-            (Intr)
-hndft_lngth -0.175
+Residual standard error: 0.3943 on 30736 degrees of freedom
+  (4811 observations deleted due to missingness)
+Multiple R-squared:  0.7122,	Adjusted R-squared:  0.7122 
+F-statistic: 7.607e+04 on 1 and 30736 DF,  p-value: < 2.2e-16
 ~~~
 {:.output}
 

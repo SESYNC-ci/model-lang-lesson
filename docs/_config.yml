@@ -4,7 +4,12 @@ title: Mini-Languages for Statistical Models
 handouts:
   - worksheet.R
   - worksheet.stan
-tag: v0.0
+  - data/README.md
+  - data/animals.csv
+  - data/plots.csv
+  - data/species.csv
+  - data/stanimals.csv
+tag: v0.1
 lesson: 6
 instructor: Ian Carroll
 authors:
