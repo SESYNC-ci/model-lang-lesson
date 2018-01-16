@@ -3,31 +3,36 @@
 
 ## Linear models
 
-The formula requires a response variable left of a "~" and any number of predictors to its right.
+The formula requires a response variable left of a `~` and any number of predictors to its right.
 
-| Formula                | Equivalent            | Description                                                                               |
-| `y ~ a`                | `y ~ 1 + a`           | constant and one predictor                                                                |
-| `y ~ -1 + a`           | `y ~ 0 + a`           | one predictor with no constant                                                            |
-| `y ~ a + b`            | `y ~ 1 + a + b`       | constant and two predictors                                                               |
-| `y ~ a:b`              |                       | constant and one predictor, the interaction of (at least) one factor and another variable |
-| `y ~ a*b`              | `y ~ 1 + a + b + a:b` | constant and three predictors                                                             |
-| `y ~ a*b - a`          | `y ~ 1 + b + a:b`     | constant and two predictors                                                               |
-| `y ~ (a + b + ... )^n` |                       | constant and all combinations of predictors up to order `n`                               |
+| Formula      | Description                    |
+| `y ~ a`      | constant and one predictor     |
+| `y ~ -1 + a` | one predictor with no constant |
+| `y ~ a + b`  | constant and two predictors    |
 
 ===
 
-## Linear model
+| `y ~ a:b`              | constant and one predictor, the interaction of a factor and another variable |
+| `y ~ a*b`              | constant and three predictors                                                |
+| `y ~ a*b - a`          | constant and two predictors                                                  |
+| `y ~ (a + b + ... )^n` | constant and all combinations of predictors up to order `n`                  |
+
+===
 
 In addition, certain functions are allowed within the formula definition.
 
 
 ~~~r
-animals <- read.csv('data/animals.csv', stringsAsFactors = FALSE, na.strings = '')
+animals <- read.csv('data/animals.csv',
+  na.strings = '')
 fit <- lm(
-  log(weight) ~ hindfoot_length,
+  hindfoot_length ~ log(weight),
   data = animals)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
+
+===
+
 
 ~~~r
 summary(fit)
@@ -36,20 +41,20 @@ summary(fit)
 ~~~
 
 Call:
-lm(formula = log(weight) ~ hindfoot_length, data = animals)
+lm(formula = hindfoot_length ~ log(weight), data = animals)
 
 Residuals:
-     Min       1Q   Median       3Q      Max 
--2.39077 -0.21749 -0.05046  0.15017  2.08463 
+    Min      1Q  Median      3Q     Max 
+-26.573  -2.976   0.987   3.483  33.738 
 
 Coefficients:
-                 Estimate Std. Error t value Pr(>|t|)    
-(Intercept)     1.5604389  0.0072416   215.5   <2e-16 ***
-hindfoot_length 0.0650048  0.0002357   275.8   <2e-16 ***
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -8.69213    0.14048  -61.88   <2e-16 ***
+log(weight) 10.95644    0.03973  275.80   <2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 0.3943 on 30736 degrees of freedom
+Residual standard error: 5.119 on 30736 degrees of freedom
   (4811 observations deleted due to missingness)
 Multiple R-squared:  0.7122,	Adjusted R-squared:  0.7122 
 F-statistic: 7.607e+04 on 1 and 30736 DF,  p-value: < 2.2e-16
@@ -58,24 +63,21 @@ F-statistic: 7.607e+04 on 1 and 30736 DF,  p-value: < 2.2e-16
 
 ===
 
-## Exercise 1
+## Metadata matters
 
-Regress hindfoot_length against weight and species_id. Does it appear that the Chihuahuan Desert's common kangaroo rat (DM) have *inordinately* large feet for their weight?
-
-===
-
-## Pay attention to factors
-
-Data type matters in statistical modelling. For the predictors in a linear model, the most important distinction is discrete versus continuous.
+For the predictors in a linear model, there is a big difference between factors
+and numbers.
 
 
 ~~~r
-animals$species_id <- factor(animals$species_id)
 fit <- lm(
   log(weight) ~ species_id,
   data = animals)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
+
+===
+
 
 ~~~r
 summary(fit)
@@ -127,4 +129,18 @@ F-statistic: 1.58e+04 on 24 and 32258 DF,  p-value: < 2.2e-16
 ~~~
 {:.output}
 
-The difference between 1 and 24 degrees of freedom between the last two models---with one fixed effect each---arises from the discreteness of `species_id`.
+The difference between 1 and 24 degrees of freedom between the last two
+models---with one fixed effect each---arises because `species_id` is a factor
+while weight is a numeric vector.
+{:.notes}
+
+===
+
+## Exercise 1
+
+Regress "hindfoot_length" against "species_id" and the log of "weight". Does it
+appear that the Chihuahuan Desert's common kangaroo rats (DM) have largish feet
+for their weight?
+
+[View solution](#solution-3)
+{:.notes}

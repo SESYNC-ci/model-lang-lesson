@@ -56,3 +56,7 @@ p.captioned {
 .ToS {
     text-align: right;
 }
+
+tr > td:first-child {
+  white-space: nowrap;
+}

@@ -5,16 +5,82 @@
 
 ===
 
-## Solution 3
+## Solution 1
+
+```{r, title = "{{ site.handouts[0] }}"}
+fit <- lm(
+  hindfoot_length ~ species_id + log(weight),
+  data = animals)
+```
+
+===
+
+The estimated coefficient for "species_idDM" and associated "***" suggest
+"yes".
 
 ```{r}
-species <- read.csv('data/species.csv')
-df <- animals %>%
-  inner_join(species, c('species_id' = 'id')) %>%
-  filter(genus == 'Perognathus')
-df$species_id <- factor(df$species_id)
-summary(glm(species_id ~ weight, family = binomial, data = df))
+summary(fit)
+```
+
+[Return](#exercise-1)
+{:.notes}
+
+===
+
+## Solution 2
+
+```{r ex-glm, title = "{{ site.handouts[0] }}"}
+fit_lm <- lm(log(weight) ~ species_id,
+             data = animals)
+fit_glm <- glm(weight ~ species_id,
+               family = poisson,
+               data = animals)
+```
+
+===
+
+```{r}
+anova(fit_lm)
+```
+
+===
+
+```{r}
+anova(fit_glm, test = 'Chisq')
+```
+
+[Return](#exercise-2)
+{:.notes}
+
+===
+
+## Solution 3
+
+```{r ex-logit, title = "{{ site.handouts[0] }}"}
+perognathus <- animals %>%
+  mutate(species_id = factor(
+    species_id, levels = c('PF', 'PH')))
+fit <- glm(species_id ~ weight,
+    family = binomial,
+    data = perognathus)
+```
+
+===
+
+The negative intercept is due to the much higher frequency of "failures" (the first level or *P. flavus*). The positive effect of weight means you've probably got a *P hispidus* in your pocket.
+
+```{r ex-logit-2}
+summary(fit)
 ```
 
 [Return](#exercise-3)
+{:.notes}
+
+===
+
+## Solution 4
+
+`weight ~ (1 | plot_id) + sex`
+
+[Return](#exercise-4)
 {:.notes}
