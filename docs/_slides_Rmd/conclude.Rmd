@@ -1,8 +1,8 @@
 ---
 ---
-  
+
 ## Where to now
-  
+
 - Don't start with non-linear mixed models! Work your way up through
   1. `lm()`
   1. `glm()`
