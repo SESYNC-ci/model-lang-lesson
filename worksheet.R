@@ -1,20 +1,56 @@
-library(dplyr)
-library(rstan)
+# Linear models
 
-animals <- read.csv('data/animals.csv', na.strings = "", stringsAsFactors = FALSE)
-species <- read.csv('data/species.csv', na.strings = "", stringsAsFactors = FALSE)
+... <- read.csv(...,
+  na.strings = '')
+fit <- ...(
+  ...,
+  ...)
 
-stanimals <- animals %>%
-  filter(year == 1980) %>%
-  inner_join(species, c('species_id' = 'id')) %>%
-  select(weight, genus, hindfoot_length) %>%
-  na.omit() %>%
-  mutate(
-    log_weight = log(weight),
-    genus = as.integer(factor(genus))) %>%
-  select(-weight) %>%
-  as.list() %>%
-  c(N = length(.[[1]]), M = max(.[['genus']]))
+# Metadata matters
 
-fit <- stan(file = 'worksheet.stan', data = stanimals,
-            iter = 100, chains = 1)
+fit <- lm(
+  ...,
+  data = animals)
+
+# Exercise 1
+
+...
+
+# GLM families
+
+fit <- ...(...,
+  ...,
+  data = animals)
+
+# Exercise 2
+
+...
+
+# Logistic regression
+
+animals$sex <- ...(...)
+fit <- glm(...,
+  ...,
+  data = animals)
+
+# Exercise 3
+
+...
+
+# Random intercept
+
+library(...)
+fit <- ...(
+  ...,
+  data = animals)
+
+# Exercise 4
+
+...
+
+# Random slope
+
+fit <- lmer(
+  hindfoot_length ~ 
+    ...,
+  data = animals)
