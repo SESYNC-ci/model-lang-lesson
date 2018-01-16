@@ -57,9 +57,9 @@ anova(fit_glm, test = 'Chisq')
 ## Solution 3
 
 ```{r ex-logit, title = "{{ site.handouts[0] }}"}
-perognathus <- animals %>%
-  mutate(species_id = factor(
-    species_id, levels = c('PF', 'PH')))
+perognathus <- animals
+perognathus$species_id <- factor(
+  perognathus$species_id, levels = c('PF', 'PH'))
 fit <- glm(species_id ~ weight,
     family = binomial,
     data = perognathus)

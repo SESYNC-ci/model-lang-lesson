@@ -123,9 +123,9 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 
 ~~~r
-perognathus <- animals %>%
-  mutate(species_id = factor(
-    species_id, levels = c('PF', 'PH')))
+perognathus <- animals
+perognathus$species_id <- factor(
+  perognathus$species_id, levels = c('PF', 'PH'))
 fit <- glm(species_id ~ weight,
     family = binomial,
     data = perognathus)
