@@ -8,7 +8,8 @@
   1. `glm()`
   1. `lmer()`
   1. `glmer()`
-- Take time to understand the whole `summary()`, the hazards of secondary data compel you.
+- Take time to understand the whole `summary()`, the hazards of secondary data compel
+  you. The vignettes for [lme4](){:.rlib} provide excellent documentation.
 - When all else fails, ask on [Cross Validated] (and [Ben Bolker] very well
   might answer).
 
