@@ -1,4 +1,6 @@
 ---
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Linear models
@@ -31,6 +33,7 @@ fit <- lm(
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 
@@ -38,6 +41,7 @@ fit <- lm(
 summary(fit)
 ~~~
 {:.input}
+
 ~~~
 
 Call:
@@ -61,6 +65,7 @@ F-statistic: 7.607e+04 on 1 and 30736 DF,  p-value: < 2.2e-16
 ~~~
 {:.output}
 
+
 ===
 
 ## Metadata matters
@@ -76,6 +81,7 @@ fit <- lm(
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 
@@ -83,6 +89,7 @@ fit <- lm(
 summary(fit)
 ~~~
 {:.input}
+
 ~~~
 
 Call:
@@ -128,6 +135,7 @@ Multiple R-squared:  0.9216,	Adjusted R-squared:  0.9215
 F-statistic: 1.58e+04 on 24 and 32258 DF,  p-value: < 2.2e-16
 ~~~
 {:.output}
+
 
 The difference between 1 and 24 degrees of freedom between the last two
 models---with one fixed effect each---arises because `species_id` is a factor

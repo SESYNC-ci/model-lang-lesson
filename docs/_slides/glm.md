@@ -34,6 +34,7 @@ fit <- glm(log(weight) ~ species_id,
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 
@@ -41,6 +42,7 @@ fit <- glm(log(weight) ~ species_id,
 summary(fit)
 ~~~
 {:.input}
+
 ~~~
 
 Call:
@@ -91,6 +93,7 @@ Number of Fisher Scoring iterations: 2
 ~~~
 {:.output}
 
+
 ===
 
 Question
@@ -114,6 +117,7 @@ models plausible? Hint: you may need to provide additional arguments to
 [View solution](#solution-2)
 {:.notes}
 
+<!--
 ===
 
 ## Learn to link
@@ -132,20 +136,24 @@ fit <- glm(weight ~ hindfoot_length,
 ~~~
 {:.input}
 
+-->
+
 ===
 
 ## Logistic regression
 
-Calling `glm` with `familly = binomial` using the default "logit" link performs logistic regression.
+Calling `glm` with `familly = binomial` using the default "logit" link performs
+logistic regression.
 
 
 ~~~r
 animals$sex <- factor(animals$sex)
-fit <- glm(sex ~ hindfoot_length,
+fit <- glm(sex ~ log(hindfoot_length),
            family = binomial,
            data = animals)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
+
 
 ===
 
@@ -154,32 +162,35 @@ fit <- glm(sex ~ hindfoot_length,
 summary(fit)
 ~~~
 {:.input}
+
 ~~~
 
 Call:
-glm(formula = sex ~ hindfoot_length, family = binomial, data = animals)
+glm(formula = sex ~ log(hindfoot_length), family = binomial, 
+    data = animals)
 
 Deviance Residuals: 
    Min      1Q  Median      3Q     Max  
--1.366  -1.207   1.057   1.124   1.246  
+-1.313  -1.214   1.075   1.120   1.423  
 
 Coefficients:
-                 Estimate Std. Error z value Pr(>|z|)    
-(Intercept)     -0.179215   0.036495  -4.911 9.08e-07 ***
-hindfoot_length  0.009571   0.001186   8.068 7.17e-16 ***
+                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          -0.73611    0.11123  -6.618 3.64e-11 ***
+log(hindfoot_length)  0.25205    0.03333   7.563 3.93e-14 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for binomial family taken to be 1)
 
     Null deviance: 43408  on 31369  degrees of freedom
-Residual deviance: 43343  on 31368  degrees of freedom
+Residual deviance: 43351  on 31368  degrees of freedom
   (4179 observations deleted due to missingness)
-AIC: 43347
+AIC: 43355
 
 Number of Fisher Scoring iterations: 3
 ~~~
 {:.output}
+
 
 ===
 

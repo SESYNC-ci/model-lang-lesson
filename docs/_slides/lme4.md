@@ -42,6 +42,13 @@ fit <- lmer(
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+~~~
+Warning: 'rBind' is deprecated.
+ Since R version 3.2.0, base's rbind() should work fine with S4 objects
+~~~
+{:.output}
+
+
 ===
 
 
@@ -49,6 +56,7 @@ fit <- lmer(
 summary(fit)
 ~~~
 {:.input}
+
 ~~~
 Linear mixed model fit by REML ['lmerMod']
 Formula: hindfoot_length ~ (1 | species_id) + log(weight)
@@ -76,6 +84,7 @@ Correlation of Fixed Effects:
 log(weight) -0.087
 ~~~
 {:.output}
+
 
 The familiar assessment of model residuals is absent from the summary due to the lack of a widely accepted measure of null and residual deviance. The notions of model saturation, degrees of freedom, and independence of observations have all crossed onto thin ice.
 {:.notes}
@@ -123,6 +132,7 @@ fit <- lmer(
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 
@@ -130,6 +140,7 @@ fit <- lmer(
 summary(fit)
 ~~~
 {:.input}
+
 ~~~
 Linear mixed model fit by REML ['lmerMod']
 Formula: hindfoot_length ~ log(weight) + (log(weight) | species_id)
@@ -158,6 +169,7 @@ Correlation of Fixed Effects:
 log(weight) 0.573 
 ~~~
 {:.output}
+
 
 ===
 

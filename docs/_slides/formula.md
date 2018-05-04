@@ -13,6 +13,7 @@ wt_len.fit <- lm(formula = wt_len,
 ~~~
 {:.input}
 
+
 The `lm()` function uses the given formula and the data types of `animals` to
 compute the best fitting model in this family (i.e. determine the optimum
 coefficients)

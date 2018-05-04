@@ -15,6 +15,7 @@ fit <- lm(
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
 
+
 ===
 
 The estimated coefficient for "species_idDM" and associated "***" suggest
@@ -25,122 +26,7 @@ The estimated coefficient for "species_idDM" and associated "***" suggest
 summary(fit)
 ~~~
 {:.input}
-~~~
-Linear mixed model fit by REML ['lmerMod']
-Formula: hindfoot_length ~ log(weight) + (log(weight) | species_id)
-   Data: animals
 
-REML criterion at convergence: 107030.8
-
-Scaled residuals: 
-     Min       1Q   Median       3Q      Max 
--17.4953  -0.4753   0.0349   0.5259  21.6529 
-
-Random effects:
- Groups     Name        Variance Std.Dev. Corr
- species_id (Intercept) 19.7197  4.4407       
-            log(weight)  0.6731  0.8205   0.76
- Residual                1.8905  1.3750       
-Number of obs: 30738, groups:  species_id, 24
-
-Fixed effects:
-            Estimate Std. Error t value
-(Intercept)  17.7170     0.9367  18.914
-log(weight)   1.6920     0.1840   9.196
-
-Correlation of Fixed Effects:
-            (Intr)
-log(weight) 0.573 
-~~~
-{:.output}
-
-[Return](#exercise-1)
-{:.notes}
-
-===
-
-## Solution 2
-
-
-~~~r
-fit_lm <- lm(log(weight) ~ species_id,
-             data = animals)
-fit_glm <- glm(weight ~ species_id,
-               family = poisson,
-               data = animals)
-~~~
-{:.text-document title="{{ site.handouts[0] }}"}
-
-===
-
-
-~~~r
-anova(fit_lm)
-~~~
-{:.input}
-~~~
-Analysis of Variance Table
-
-Response: log(weight)
-              Df  Sum Sq Mean Sq F value    Pr(>F)    
-species_id    24 16501.4  687.56   15800 < 2.2e-16 ***
-Residuals  32258  1403.8    0.04                      
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-~~~
-{:.output}
-
-===
-
-
-~~~r
-anova(fit_glm, test = 'Chisq')
-~~~
-{:.input}
-~~~
-Analysis of Deviance Table
-
-Model: poisson, link: log
-
-Response: weight
-
-Terms added sequentially (first to last)
-
-           Df Deviance Resid. Df Resid. Dev  Pr(>Chi)    
-NULL                       32282     775950              
-species_id 24   718546     32258      57404 < 2.2e-16 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-~~~
-{:.output}
-
-[Return](#exercise-2)
-{:.notes}
-
-===
-
-## Solution 3
-
-
-~~~r
-perognathus <- animals
-perognathus$species_id <- factor(
-  perognathus$species_id, levels = c('PF', 'PH'))
-fit <- glm(species_id ~ weight,
-    family = binomial,
-    data = perognathus)
-~~~
-{:.text-document title="{{ site.handouts[0] }}"}
-
-===
-
-The negative intercept is due to the much higher frequency of "failures" (the first level or *P. flavus*). The positive effect of weight means you've probably got a *P hispidus* in your pocket.
-
-
-~~~r
-summary(fit)
-~~~
-{:.input}
 ~~~
 
 Call:
@@ -186,6 +72,129 @@ Multiple R-squared:  0.9789,	Adjusted R-squared:  0.9788
 F-statistic: 5.924e+04 on 24 and 30713 DF,  p-value: < 2.2e-16
 ~~~
 {:.output}
+
+
+[Return](#exercise-1)
+{:.notes}
+
+===
+
+## Solution 2
+
+
+~~~r
+fit_lm <- lm(log(weight) ~ species_id,
+             data = animals)
+fit_glm <- glm(weight ~ species_id,
+               family = poisson,
+               data = animals)
+~~~
+{:.text-document title="{{ site.handouts[0] }}"}
+
+
+===
+
+
+~~~r
+anova(fit_lm)
+~~~
+{:.input}
+
+~~~
+Analysis of Variance Table
+
+Response: log(weight)
+              Df  Sum Sq Mean Sq F value    Pr(>F)    
+species_id    24 16501.4  687.56   15800 < 2.2e-16 ***
+Residuals  32258  1403.8    0.04                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+~~~
+{:.output}
+
+
+===
+
+
+~~~r
+anova(fit_glm, test = 'Chisq')
+~~~
+{:.input}
+
+~~~
+Analysis of Deviance Table
+
+Model: poisson, link: log
+
+Response: weight
+
+Terms added sequentially (first to last)
+
+           Df Deviance Resid. Df Resid. Dev  Pr(>Chi)    
+NULL                       32282     775950              
+species_id 24   718546     32258      57404 < 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+~~~
+{:.output}
+
+
+[Return](#exercise-2)
+{:.notes}
+
+===
+
+## Solution 3
+
+
+~~~r
+perognathus <- animals
+perognathus$species_id <- factor(
+  perognathus$species_id, levels = c('PF', 'PH'))
+fit <- glm(species_id ~ weight,
+    family = binomial,
+    data = perognathus)
+~~~
+{:.text-document title="{{ site.handouts[0] }}"}
+
+
+===
+
+The negative intercept is due to the much higher frequency of "failures" (the first level or *P. flavus*). The positive effect of weight means you've probably got a *P hispidus* in your pocket.
+
+
+~~~r
+summary(fit)
+~~~
+{:.input}
+
+~~~
+
+Call:
+glm(formula = species_id ~ weight, family = binomial, data = perognathus)
+
+Deviance Residuals: 
+     Min        1Q    Median        3Q       Max  
+-1.83312  -0.03294  -0.02487  -0.01878   2.25500  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -12.57789    1.94715  -6.460 1.05e-10 ***
+weight        0.56207    0.09342   6.017 1.78e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 305.082  on 1578  degrees of freedom
+Residual deviance:  23.771  on 1577  degrees of freedom
+  (33970 observations deleted due to missingness)
+AIC: 27.771
+
+Number of Fisher Scoring iterations: 10
+~~~
+{:.output}
+
 
 [Return](#exercise-3)
 {:.notes}
