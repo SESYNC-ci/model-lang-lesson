@@ -1,9 +1,9 @@
 data {
   int N;
-  int M;
-  vector[N] log_weight;
   vector[N] hindfoot_length;
-  int species_idx[N];
+  int species_id[N];
+  vector[N] log_weight;
+  int M;
 }
 parameters {
   real beta0;
@@ -12,16 +12,14 @@ parameters {
   real<lower=0> sigma;
   real<lower=0> sigma_spp;
 }
-transformed parameters {
-  vector[N] mu;
-//  for (i in 1:N)
-  mu = beta0 + beta1[species_idx] + log_weight * beta2;
-}
 model {
+  vector[N] mu;
+  mu = beta0 + beta1[species_id] + log_weight * beta2;
+
   hindfoot_length ~ normal(mu, sigma);
   sigma ~ cauchy(0, 5);
-  beta0 ~ normal(0, 10);
+  beta0 ~ normal(0, 5);
   beta1 ~ normal(0, sigma_spp);
-  beta2 ~ normal(0, 10);
+  beta2 ~ normal(0, 5);
   sigma_spp ~ cauchy(0, 5);
 }
