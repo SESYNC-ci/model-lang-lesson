@@ -1,18 +1,14 @@
 # Site
 
-title: Mini-Languages for Statistical Models
+title: Regression
 handouts:
   - worksheet.R
-  - worksheet-1.stan
-  - worksheet-2.stan
-  - worksheet-3.stan
-  - data/README.md
+  - worksheet.stan
   - data/animals.csv
-  - data/plots.csv
-  - data/species.csv
   - data/stanimals.RDS
-tag: v0.2
-lesson: 2
+  - data/README.md
+tag: v0.3
+lesson: 6
 instructor: Ian Carroll
 authors:
   - Ian Carroll
@@ -26,7 +22,7 @@ slide_sorter:
   - lme4
   - stan
   - conclude
-  - solutions
+  - exercise
 
 #####################################
 # Only modify content above or risk #

@@ -1,11 +1,10 @@
 ---
-editor_options: 
-  chunk_output_type: console
 ---
 
-## Linear models
+## Linear Models
 
-The formula requires a response variable left of a `~` and any number of predictors to its right.
+The formula requires a response variable left of a `~` and any number of
+predictors to its right.
 
 | Formula      | Description                    |
 | `y ~ a`      | constant and one predictor     |
@@ -24,6 +23,7 @@ The formula requires a response variable left of a `~` and any number of predict
 In addition, certain functions are allowed within the formula definition.
 
 
+
 ~~~r
 animals <- read.csv('data/animals.csv',
   na.strings = '')
@@ -37,10 +37,12 @@ fit <- lm(
 ===
 
 
+
 ~~~r
-summary(fit)
+> summary(fit)
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 
@@ -68,10 +70,11 @@ F-statistic: 7.607e+04 on 1 and 30736 DF,  p-value: < 2.2e-16
 
 ===
 
-## Metadata matters
+## Metadata Matters
 
 For the predictors in a linear model, there is a big difference between factors
 and numbers.
+
 
 
 ~~~r
@@ -85,10 +88,12 @@ fit <- lm(
 ===
 
 
+
 ~~~r
-summary(fit)
+> summary(fit)
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 
@@ -140,15 +145,4 @@ F-statistic: 1.58e+04 on 24 and 32258 DF,  p-value: < 2.2e-16
 The difference between 1 and 24 degrees of freedom between the last two
 models---with one fixed effect each---arises because `species_id` is a factor
 while weight is a numeric vector.
-{:.notes}
-
-===
-
-## Exercise 1
-
-Regress "hindfoot_length" against "species_id" and the log of "weight". Does it
-appear that the Chihuahuan Desert's common kangaroo rats (DM) have largish feet
-for their weight?
-
-[View solution](#solution-3)
 {:.notes}

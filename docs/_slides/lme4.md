@@ -20,18 +20,19 @@ consume a well-defined number of degrees of freedom. Variables added within
 The "random intercepts" and "random slopes" models are the two most common
 extensions to a formula with one variable.
 
-| Formula               | Description                                                     |
-|-----------------------|-----------------------------------------------------------------|
-| `y ~ a`               | constant and one fixed effect                                   |
-| `y ~ (1 | b) + a`     | random intercept for each level in `b` and one fixed effect     |
-| `y ~ a + (a | b)`     | random intercept and slope w.r.t. `a` for each level in `b`                  |
+| Formula               | Description                                                 |
+|-----------------------|-------------------------------------------------------------|
+| `y ~ a`               | constant and one fixed effect                               |
+| `y ~ (1 | b) + a`     | random intercept for each level in `b` and one fixed effect |
+| `y ~ a + (a | b)`     | random intercept and slope w.r.t. `a` for each level in `b` |
 
 ===
 
-## Random intercept
+### Random Intercept
 
 The `lmer` and `glmer` functions fit linear and generalized linear models with
 the `lme4` formula syntax.
+
 
 
 ~~~r
@@ -41,6 +42,7 @@ fit <- lmer(
   data = animals)
 ~~~
 {:.text-document title="{{ site.handouts[0] }}"}
+
 
 ~~~
 Warning: 'rBind' is deprecated.
@@ -52,10 +54,12 @@ Warning: 'rBind' is deprecated.
 ===
 
 
+
 ~~~r
-summary(fit)
+> summary(fit)
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 Linear mixed model fit by REML ['lmerMod']
@@ -76,7 +80,7 @@ Number of obs: 30738, groups:  species_id, 24
 
 Fixed effects:
             Estimate Std. Error t value
-(Intercept) 16.77000    1.41229   11.87
+(Intercept) 16.77000    1.41230   11.87
 log(weight)  2.13065    0.03799   56.09
 
 Correlation of Fixed Effects:
@@ -86,12 +90,15 @@ log(weight) -0.087
 {:.output}
 
 
-The familiar assessment of model residuals is absent from the summary due to the lack of a widely accepted measure of null and residual deviance. The notions of model saturation, degrees of freedom, and independence of observations have all crossed onto thin ice.
+The familiar assessment of model residuals is absent from the summary due to the
+lack of a widely accepted measure of null and residual deviance. The notions of
+model saturation, degrees of freedom, and independence of observations have all
+crossed onto thin ice.
 {:.notes}
 
 ===
 
-## Non-independence
+### Non-independence
 
 Models with random effects should be understood as specifying multiple,
 overlapping probability statements about the observations.
@@ -104,24 +111,20 @@ $$
 &\end{align}
 $$
 
-In a `lm` or `glm` fit, each response is conditionally independent, given it's predictors and the model coefficients. Each observation corresponds to it's own probability statement. In a model with random effects, each response is no longer conditionally independent, given it's predictors and model coefficients.
+In a `lm` or `glm` fit, each response is conditionally independent, given it's
+predictors and the model coefficients. Each observation corresponds to it's own
+probability statement. In a model with random effects, each response is no
+longer conditionally independent, given it's predictors and model coefficients.
 {:.notes}
 
 ===
 
-## Exercise 4
+### Random Slope
 
-Write down the formula for a random intercepts model with a fixed effect of
-sex and a random effect of plot on each animal's weight.
+Adding a numeric variable on the left of a grouping specified with `(...|...)`
+produces a "random slope" model. Here, separate coefficients for hindfoot_length
+are allowed for each species.
 
-[View solution](#solution-4)
-{:.notes}
-
-===
-
-## Random slope
-
-Adding a numeric variable on the left of a grouping specified with `(...|...)` produces a "random slope" model. Here, separate coefficients for hindfoot_length are allowed for each species.
 
 
 ~~~r
@@ -136,10 +139,12 @@ fit <- lmer(
 ===
 
 
+
 ~~~r
-summary(fit)
+> summary(fit)
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 Linear mixed model fit by REML ['lmerMod']
@@ -154,8 +159,8 @@ Scaled residuals:
 
 Random effects:
  Groups     Name        Variance Std.Dev. Corr
- species_id (Intercept) 19.7197  4.4407       
-            log(weight)  0.6731  0.8205   0.76
+ species_id (Intercept) 19.7199  4.4407       
+            log(weight)  0.6731  0.8204   0.76
  Residual                1.8905  1.3750       
 Number of obs: 30738, groups:  species_id, 24
 
@@ -179,7 +184,7 @@ log(weight) 0.573
 
 ===
 
-## Generalized Mixed Models
+### Generalized Mixed Models
 
-The `glmer` function merely adds to `lmer` the option to specify an exponential
-family distribution for the response variable.
+The `glmer` function merely adds to `lmer` the option to specify several
+exponential family distributions for the response variable.

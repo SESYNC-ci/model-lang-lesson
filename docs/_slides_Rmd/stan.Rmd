@@ -1,25 +1,47 @@
 ---
-editor_options: 
-  chunk_output_type: console
 ---
 
 ## Meet Stan
 
-Stan is the name of a program that performs an entirely different kind of model fitting, and the Stan modelling language is yet another way of writing a "formula". Stan is similar to JAGS and BUGS: it is a "sampler", but does not use the Gibbs algorithm.
+Stan is the name of a program that performs an entirely different kind of model
+fitting, and the Stan modelling language is yet another way of writing a
+"formula". Stan is similar to JAGS and BUGS---it is a "sampler", but does not use
+the Gibbs algorithm.
 
 ===
 
-## Sampling vs. Fitting
+### Sampling vs. Fitting
 
 The result of model fitting through `lm` and its descendents in R is an estimated coefficient coupled with the uncertainty in that estimate.
 
+```{r echo = FALSE, message = FALSE}
+plt <- function() {
+  require(ggplot2)
+  set.seed(1234)
+  df <- data.frame(parameter = rgamma(100, 5))
+  ci <- c(confint(lm(parameter ~ 1, df)))
+  ggplot(df, aes(x = parameter)) +
+    annotate('rect', xmin = ci[1], xmax = ci[2], ymin = 0, ymax = 0.2,
+             fill = 'blue', alpha = 0.2) +
+    geom_line(stat="density", color = 'orange') +
+    geom_point(aes(x = parameter, y = 0.1), color = 'orange') +
+    scale_y_continuous(limits = c(0, 0.2), expand = c(0, 0)) +
+    labs(title = 'Estimates vs. Samples', y = 'sample density') +
+    theme_bw(base_size = 16)
+}
+plt()
+```
+
 The results produced by Stan are tables of numbers with a column for each coefficient in the model. Each row represents an equally likely set of coefficients for the model, as judged by its resulting fit to the data.
+{:.notes}
 
 ===
 
-## An example
+### An Example
 
-The formulas we use previously to describe a "random intercepts" model are directly included in a Stan model file, along with necessary information on the data.
+The formulas we use previously to describe a "random intercepts" model are
+directly included in a Stan model file, along with necessary information on the
+data.
 
 ```
 data {
@@ -30,121 +52,134 @@ data {
   vector[N] log_weight;
 }
 ```
-{:.text-document title='{{ site.handouts[3] }}'}
+{:.text-document title='{{ site.handouts[1] }}'}
 
 ===
 
-The parameters section of the model defines the parameters for which
-samples will be returned.
+The parameters section of the model defines the parameters for which samples
+will be returned.
 
 ```
 parameters {
   real beta0;
   vector[M] beta1;
   real beta2;
-  real<lower=0> sigma;
-  real<lower=0> sigma_spp;
+  real<lower=0> sigma0;
+  real<lower=0> sigma1;
 }
 ```
-{:.text-document title='{{ site.handouts[3] }}'}
+{:.text-document title='{{ site.handouts[1] }}'}
 
 ===
 
-The model section specifies all the probability distributions used in
-the likelihood and the priors.
+The model section specifies all the probability distributions used in the
+likelihood and the priors.
 
 ```
 model {
   vector[N] mu;
-  mu = beta0 + beta1[species_id] + log_weight * beta2;
 
-  hindfoot_length ~ normal(mu, sigma);
-  sigma ~ cauchy(0, 5);
+  mu = beta0 + beta1[species_id] + beta2 * log_weight;
+  hindfoot_length ~ normal(mu, sigma0);
+  beta1 ~ normal(0, sigma1);
+
   beta0 ~ normal(0, 5);
-  beta1 ~ normal(0, sigma_spp);
   beta2 ~ normal(0, 5);
-  sigma_spp ~ cauchy(0, 5);
+  sigma0 ~ cauchy(0, 5);
+  sigma1 ~ cauchy(0, 5);
 }
 ```
-{:.text-document title='{{ site.handouts[3] }}'}
+{:.text-document title='{{ site.handouts[1] }}'}
 
 ===
 
-# RStan
+### RStan
 
-The [rstan](){:.rlib} package is a wrapper for sending data to the Stan program and getting back results.
+The [rstan](){:.rlib} package is a wrapper for sending data to the Stan program
+and getting back results.
 
-```{r, eval = FALSE, message = FALSE, title = '{{ site.handouts[0] }}'}
-library(rstan)
+===
+
+```{r, eval = FALSE, title = '{{ site.handouts[0] }}'}
+library(dplyr)
 
 stanimals <- animals %>%
+    select(hindfoot_length, species_id, weight) %>%
+    na.omit() %>%
     mutate(
         log_weight = log(weight),
         species_id = as.integer(factor(species_id))) %>%
-    select(hindfoot_length, species_id, log_weight) %>%
-    na.omit()
+    select(-weight)
 stanimals <- c(
     N = nrow(stanimals),
     M = max(stanimals$species_id),
     as.list(stanimals))
+```
 
-samp <- stan(file = 'worksheet-3.stan',
+===
+
+The `stan` function reads the model file, compiles an hidden executable based on the model and data, runs it and reads the results back into R.
+
+```{r, eval = FALSE, title = '{{ site.handouts[0] }}'}
+library(rstan)
+samp <- stan(file = 'worksheet.stan',
     data = stanimals,
-    iter = 1000, chains = 4)
+    iter = 1000, chains = 2, cores = 2)
 saveRDS(samp, 'stanimals.RDS')
 ```
-
-## Parameter "samples"
-
-An example `samp` output, saved to "RDS" after a long-running Stan job, is available in the handout's data folder. Each row represents an equally likely set of coefficients for the model, as judged by its resulting fit to the data.
-
-```{r, eval = FALSE}
-plot(samp, pars = c('beta0', 'beta2', 'sigma', 'sigma_spp'))
+```{r include = FALSE, message = FALSE}
+library(rstan)
+samp <- readRDS('data/stanimals.RDS')
 ```
 
-```{r, eval = FALSE}
+===
+
+### Parameter Inference
+
+An example `samp` output, saved to "RDS" after a long-running Stan job, is
+available in the handout's data folder. Each row represents an equally likely
+set of coefficients for the model, as judged by its resulting fit to the data.
+
+```{r}
+plot(samp, pars = c('beta0', 'beta2', 'sigma0', 'sigma1'))
+```
+
+===
+
+The "random intercepts" due to species_id are also parameters in the
+model---which merely claimed they are normally distributed with variance
+`sigma1`.
+
+```{r}
 plot(samp, pars = 'beta1')
 ```
 
+Perhaps we should revisit that claim, and choose a asymmetric distribution.
+{:.notes}
+
 ===
 
-## Using pre-compiled Stan Models
+### Pre-compiled Stan
 
-The function for ANOVA type models, fit with `lm` for the frequentist approach.
+Sampling with Stan lets you specify any structure and use any probability
+distribution. You pay quite a cost in speed and difficulty, but both are going
+down with [rstanarm](){:.rlib}.
 
-```{r, eval = FALSE}
-fit <- stan_aov(
-    hindfoot_length ~ log(weight),
+===
+
+The pre-compiled Stan analog of the example above takes a similar model formula
+as [lme4](){:.rlib}, the usual data frame, and adds "default" priors.
+
+```{r, eval = FALSE, title = '{{ site.handouts[0] }}'}
+library(rstanarm)
+fit <- stan_lmer(
+    hindfoot_length ~ (1 | species_id) + log(weight),
     data = animals,
-    prior = R2(location = 0.2, 'mean'),
-    chains = 4, cores = 4, iter = 1000)
+    chains = 2, cores = 2, iter = 1000)
 ```
+
+The `stan_glmer` function allows you to additionally specify a family, same as the `glm` function employed above.
+{:.notes}
 
 ===
 
-The function for logistic type models, fit with `glm` for the frequentist approach.
-
-```{r, eval = FALSE}
-t_prior <- student_t(df = 7, location = 0, scale = 2.5)
-fit <- stan_glm(
-    sex ~ log(hindfoot_length),
-    data = animals, 
-    family = binomial(link = "logit"), 
-    prior = t_prior,
-    prior_intercept = t_prior,  
-    chains = 4, cores = 4, iter = 1000)
-```
-
-===
-
-## Summary
-
-- Several "formula" languages co-exist in R packages
-  - Linear models and generalized linear models are similar
-  - Mixed effects models use grouping to add "random effects"
-
-- "Generalized" modeling functiongs add a `family` specification.
-
-- Sampling with Stan lets you specify any structure and use any probability
-  distribution. You pay a great cost in speed and difficulty, but that's going
-  down with (rstanarm)[]{:.rlib}.

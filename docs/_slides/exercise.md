@@ -1,11 +1,70 @@
 ---
 ---
 
+## Exercises
+
+===
+
+### Exercise 1
+
+Regress "hindfoot_length" against "species_id" and the log of "weight". Does it
+appear that the Chihuahuan Desert's common kangaroo rats (DM) have largish feet
+for their weight?
+
+[View solution](#solution-3)
+{:.notes}
+
+===
+
+### Exercise 2
+
+Weight is actually a positive integer in this dataset. Fit the log of weight
+against species ID using `lm()`, and fit raw weight against species ID using
+`glm()` with the Poisson family. According the the `anova()` table, are both
+models plausible? Hint: you may need to provide additional arguments to
+`anova()`.
+
+[View solution](#solution-2)
+{:.notes}
+
+===
+
+### Exercise 3
+
+You are standing in the Chihuahuan desert, when a pocket mouse (genus
+*Perognathus*) suddenly runs up your pant leg. It weighs down your pocket quite
+a bit, relative to your many similar pocket mouse experiences. Run a binomial
+family GLM on the two Perognathus species in the animals table that may help you
+predict to which species it belongs. Hint: Begin by mutating `species_id` into a
+`factor()` with `levels = c("PF", "PH")`.
+
+[View solution](#solution-3)
+{:.notes}
+
+===
+
+### Exercise 4
+
+Write down the formula for a random intercepts model with a fixed effect of
+sex and a random effect of plot on each animal's weight.
+
+[View solution](#solution-4)
+{:.notes}
+
+===
+
+### Exercise 5
+
+Use `stan_glm` to evaluate the logistic regression performed earlier with `glm`
+on sex as predicted by the log of hindfoot_length.
+
+===
+
 ## Solutions
 
 ===
 
-## Solution 1
+### Solution 1
 
 
 
@@ -82,7 +141,7 @@ F-statistic: 5.924e+04 on 24 and 30713 DF,  p-value: < 2.2e-16
 
 ===
 
-## Solution 2
+### Solution 2
 
 
 
@@ -153,7 +212,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ===
 
-## Solution 3
+### Solution 3
 
 
 
@@ -213,9 +272,32 @@ Number of Fisher Scoring iterations: 10
 
 ===
 
-## Solution 4
+### Solution 4
 
-`weight ~ (1 | plot_id) + sex`
+
+
+~~~r
+> weight ~ (1 | plot_id) + sex
+~~~
+{:.input title="Console"}
+
 
 [Return](#exercise-4)
 {:.notes}
+
+===
+
+### Solution 5
+
+
+
+~~~r
+library(rstanarm)
+fit <- stan_glm(
+    sex ~ log(hindfoot_length),
+    data = animals, 
+    family = binomial(), 
+    chains = 2, cores = 2, iter = 1000)
+~~~
+{:.text-document .no-eval title="{{ site.handouts[0] }}"}
+

@@ -1,13 +1,13 @@
 ---
 ---
 
-## Generalized linear models
+## Generalized Linear Models
 
 The `lm` function treats the response variable as numeric---the `glm` function lifts this restriction and others. Not through the `formula` syntax, which is the same for calls to `lm`  and `glm`, but through addition of the `family` argument.
 
 ===
 
-## GLM families
+### GLM Families
 
 The `family` argument determines the family of probability distributions in which the response variable belongs. A key difference between families is the data type and range.
 
@@ -27,6 +27,7 @@ The model fit in exercise 1 is (almost) identically produced with a GLM
 using the Gaussian family and identity link.
 
 
+
 ~~~r
 fit <- glm(log(weight) ~ species_id,
     family = gaussian,
@@ -38,10 +39,12 @@ fit <- glm(log(weight) ~ species_id,
 ===
 
 
+
 ~~~r
-summary(fit)
+> summary(fit)
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 
@@ -97,53 +100,22 @@ Number of Fisher Scoring iterations: 2
 ===
 
 Question
-: Shouldn't the coeficient estimates between this `glm()` and the previous
+: Should the coeficient estimates between this Gaussian `glm()` and the previous
 `lm()` be different?
 
 Answer
-: {:.fragment} True, the `lm()` function uses a different (less general) fitting procedure than the `glm()` function, which uses IWLS. But on 64-bit machines,
-it's rare to encounter an actual difference.
+: {:.fragment} It's possible. The `lm()` function uses a different (less
+general) fitting procedure than the `glm()` function, which uses IWLS. But with
+64 bits used to store very precise numbers, it's rare to encounter an noticeable
+difference.
 
 ===
 
-## Exercise 2
-
-Weight is actually a positive integer in this dataset. Fit the log of weight
-against species ID using `lm()`, and fit raw weight against species ID using
-`glm()` with the Poisson family. According the the `anova()` table, are both
-models plausible? Hint: you may need to provide additional arguments to
-`anova()`.
-
-[View solution](#solution-2)
-{:.notes}
-
-<!--
-===
-
-## Learn to link
-
-Correct use of the `link` argument to the family requires in-depth knowledge
-about generalized linear models---not our objective here. A common mistake to
-avoid, however, is assuming that `glm` applies the transfromation given as
-`link` to the response variable.
-
-
-~~~r
-## THIS IS PROBABLY NOT WHAT YOU WANT!
-fit <- glm(weight ~ hindfoot_length,
-    family = gaussian(link = `log`),
-    data = animals)
-~~~
-{:.input}
-
--->
-
-===
-
-## Logistic regression
+### Logistic Regression
 
 Calling `glm` with `familly = binomial` using the default "logit" link performs
 logistic regression.
+
 
 
 ~~~r
@@ -158,10 +130,12 @@ fit <- glm(sex ~ log(hindfoot_length),
 ===
 
 
+
 ~~~r
-summary(fit)
+> summary(fit)
 ~~~
-{:.input}
+{:.input title="Console"}
+
 
 ~~~
 
@@ -194,30 +168,17 @@ Number of Fisher Scoring iterations: 3
 
 ===
 
-## Observation weights
+### Observation Weights
 
 Both the `lm()` and `glm()` function allow a vector of weights the same length
 as the response. Weights can be necessary for logistic regression, depending on
 the format of the data. The `binomial` family `glm()` works with three different
 response variable formats.
 
-1. `factor` **with two levels (binary)**
-1. `matrix` of type `integer` with two columns for the count of "successes" and "failures".
-1. `numeric` between 0 and 1, specifying the proprtion of "successes" out of `weights` trials.
+1. `factor` with only or coerced to two levels (binary)
+1. `matrix` with two columns for the count of "successes" and "failures"
+1. `numeric` proprtion of "successes" out of `weights` trials
 
-Depending on your predictors, these three formats are not interchangeable.
-{:.notes}
-
-===
-
-## Exercise 3
-
-You are standing in the Chihuahuan desert, when a pocket mouse (genus
-*Perognathus*) suddenly runs up your pant leg. It weighs down your pocket quite
-a bit, relative to your many similar pocket mouse experiences. Run a binomial
-family GLM on the two Perognathus species in the animals table that may help you
-predict to which species it belongs. Hint: Begin by mutating `species_id` into a
-`factor()` with `levels = c("PF", "PH")`.
-
-[View solution](#solution-3)
+Depending on your model, these three formats are not necesarilly
+interchangeable.
 {:.notes}
