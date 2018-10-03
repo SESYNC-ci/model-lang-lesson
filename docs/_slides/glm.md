@@ -113,7 +113,7 @@ difference.
 
 ### Logistic Regression
 
-Calling `glm` with `familly = binomial` using the default "logit" link performs
+Calling `glm` with `family = binomial` using the default "logit" link performs
 logistic regression.
 
 
