@@ -1,41 +1,17 @@
-# Site
+# Build Configuration
 
-title: Regression
-handouts:
-  - worksheet.R
-  - worksheet.stan
-  - data/animals.csv
-  - data/stanimals.RDS
-  - data/README.md
-tag: v0.3
-lesson: 6
-instructor: Ian Carroll
-authors:
-  - Ian Carroll
-
-# Slides
-slide_sorter:
-  - intro
-  - formula
-  - lm
-  - glm
-  - lme4
-  - stan
-  - conclude
-  - exercise
-
-#####################################
-# Only modify content above or risk #
-# merge conflicts with upstream.    #
-#####################################
-
-# Style
-
-styleurl: https://cdn.rawgit.com/sesync-ci/lesson-style/v2.0/docs
-reveal: https://cdn.rawgit.com/hakimel/reveal.js/3.5.0
-
-# Jekyll
-
-markdown: kramdown
+markdown: kramdown 
 collections:
-  - slides
+  slides:
+    output: false
+  views:
+    output: true
+    permalink: /:name/
+  archive:
+    output: true
+    permalink: /:year/:month/:day/:title:output_ext
+
+# Asset Location
+
+imageurl: /assets/images/
+styleurl: /assets/css/
