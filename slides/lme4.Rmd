@@ -33,7 +33,7 @@ extensions to a formula with one variable.
 The `lmer` and `glmer` functions fit linear and generalized linear models with
 the `lme4` formula syntax.
 
-```{r lmer_ri, message = FALSE, title = '{{ site.handouts[0] }}'}
+```{r lmer_ri, message = FALSE, handout = 0}
 library(lme4)
 fit <- lmer(
   hindfoot_length ~ (1|species_id) + log(weight),
@@ -81,7 +81,7 @@ Adding a numeric variable on the left of a grouping specified with `(...|...)`
 produces a "random slope" model. Here, separate coefficients for hindfoot_length
 are allowed for each species.
 
-```{r, title = '{{ site.handouts[0] }}'}
+```{r, handout = 0}
 fit <- lmer(
   hindfoot_length ~ 
     log(weight) + (log(weight) | species_id),
@@ -111,7 +111,7 @@ ggplot(
   labs(title = 'Random intercept and slope with lmer')
 ```
 
-![]({{ site.baseurl }}/images/rs_plot-1.png)
+![]({% include asset.html path="images/rs_plot-1.png" %})
 
 ===
 

@@ -1,0 +1,21 @@
+title: Regression
+handouts:
+  - worksheet.R
+  - worksheet.stan
+  - data/animals.csv
+  - data/stanimals.RDS
+  - data/README.md
+tag: v0.3
+lesson: 6
+instructor: Ian Carroll
+authors:
+  - Ian Carroll
+sorter:
+  - intro
+  - formula
+  - lm
+  - glm
+  - lme4
+  - stan
+  - conclude
+  - exercise

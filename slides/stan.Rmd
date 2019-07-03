@@ -14,7 +14,7 @@ the Gibbs algorithm.
 
 The result of model fitting through `lm` and its descendents in R is an estimated coefficient coupled with the uncertainty in that estimate.
 
-```{r echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE}
 plt <- function() {
   require(ggplot2)
   set.seed(1234)
@@ -52,7 +52,7 @@ data {
   vector[N] log_weight;
 }
 ```
-{:.text-document title='{{ site.handouts[1] }}'}
+{:.text-document title="{{ site.data.lesson.handouts[1] }}"}
 
 ===
 
@@ -68,7 +68,7 @@ parameters {
   real<lower=0> sigma1;
 }
 ```
-{:.text-document title='{{ site.handouts[1] }}'}
+{:.text-document title="{{ site.data.lesson.handouts[1] }}"}
 
 ===
 
@@ -89,7 +89,7 @@ model {
   sigma1 ~ cauchy(0, 5);
 }
 ```
-{:.text-document title='{{ site.handouts[1] }}'}
+{:.text-document title="{{ site.data.lesson.handouts[1] }}"}
 
 ===
 
@@ -100,7 +100,7 @@ and getting back results.
 
 ===
 
-```{r, eval = FALSE, title = '{{ site.handouts[0] }}'}
+```{r, eval = FALSE, handout = 0}
 library(dplyr)
 
 stanimals <- animals %>%
@@ -120,7 +120,7 @@ stanimals <- c(
 
 The `stan` function reads the model file, compiles an hidden executable based on the model and data, runs it and reads the results back into R.
 
-```{r, eval = FALSE, title = '{{ site.handouts[0] }}'}
+```{r, eval = FALSE, handout = 0}
 library(rstan)
 samp <- stan(file = 'worksheet.stan',
     data = stanimals,
@@ -170,7 +170,7 @@ down with [rstanarm](){:.rlib}.
 The pre-compiled Stan analog of the example above takes a similar model formula
 as [lme4](){:.rlib}, the usual data frame, and adds "default" priors.
 
-```{r, eval = FALSE, title = '{{ site.handouts[0] }}'}
+```{r, eval = FALSE, handout = 0}
 library(rstanarm)
 fit <- stan_lmer(
     hindfoot_length ~ (1 | species_id) + log(weight),
@@ -180,6 +180,3 @@ fit <- stan_lmer(
 
 The `stan_glmer` function allows you to additionally specify a family, same as the `glm` function employed above.
 {:.notes}
-
-===
-

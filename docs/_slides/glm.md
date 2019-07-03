@@ -33,7 +33,7 @@ fit <- glm(log(weight) ~ species_id,
     family = gaussian,
     data = animals)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -43,7 +43,7 @@ fit <- glm(log(weight) ~ species_id,
 ~~~r
 > summary(fit)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -124,7 +124,7 @@ fit <- glm(sex ~ log(hindfoot_length),
            family = binomial,
            data = animals)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -134,7 +134,7 @@ fit <- glm(sex ~ log(hindfoot_length),
 ~~~r
 > summary(fit)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~

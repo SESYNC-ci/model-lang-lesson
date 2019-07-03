@@ -31,7 +31,7 @@ fit <- lm(
   hindfoot_length ~ log(weight),
   data = animals)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -41,7 +41,7 @@ fit <- lm(
 ~~~r
 > summary(fit)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -82,7 +82,7 @@ fit <- lm(
   log(weight) ~ species_id,
   data = animals)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -92,7 +92,7 @@ fit <- lm(
 ~~~r
 > summary(fit)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~

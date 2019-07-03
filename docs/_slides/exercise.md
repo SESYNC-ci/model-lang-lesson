@@ -73,7 +73,7 @@ fit <- lm(
   hindfoot_length ~ species_id + log(weight),
   data = animals)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -86,7 +86,7 @@ The estimated coefficient for "species_idDM" and associated "***" suggest
 ~~~r
 > summary(fit)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -152,7 +152,7 @@ fit_glm <- glm(weight ~ species_id,
                family = poisson,
                data = animals)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -162,7 +162,7 @@ fit_glm <- glm(weight ~ species_id,
 ~~~r
 > anova(fit_lm)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -185,7 +185,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ~~~r
 > anova(fit_glm, test = 'Chisq')
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -224,7 +224,7 @@ fit <- glm(species_id ~ weight,
     family = binomial,
     data = perognathus)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -236,7 +236,7 @@ The negative intercept is due to the much higher frequency of "failures" (the fi
 ~~~r
 > summary(fit)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -279,7 +279,7 @@ Number of Fisher Scoring iterations: 10
 ~~~r
 > weight ~ (1 | plot_id) + sex
 ~~~
-{:.input title="Console"}
+{:title="Console" .no-eval .input}
 
 
 [Return](#exercise-4)
@@ -299,5 +299,5 @@ fit <- stan_glm(
     family = binomial(), 
     chains = 2, cores = 2, iter = 1000)
 ~~~
-{:.text-document .no-eval title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .no-eval .text-document}
 

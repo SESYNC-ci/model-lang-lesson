@@ -14,7 +14,7 @@ the Gibbs algorithm.
 
 The result of model fitting through `lm` and its descendents in R is an estimated coefficient coupled with the uncertainty in that estimate.
 
-![ ]({{ site.baseurl }}/images/stan/unnamed-chunk-1-1.png)
+![ ]({% include asset.html path="images/stan/unnamed-chunk-1-1.png" %})
 {:.captioned}
 
 The results produced by Stan are tables of numbers with a column for each coefficient in the model. Each row represents an equally likely set of coefficients for the model, as judged by its resulting fit to the data.
@@ -37,7 +37,7 @@ data {
   vector[N] log_weight;
 }
 ```
-{:.text-document title='{{ site.handouts[1] }}'}
+{:.text-document title="{{ site.data.lesson.handouts[1] }}"}
 
 ===
 
@@ -53,7 +53,7 @@ parameters {
   real<lower=0> sigma1;
 }
 ```
-{:.text-document title='{{ site.handouts[1] }}'}
+{:.text-document title="{{ site.data.lesson.handouts[1] }}"}
 
 ===
 
@@ -74,7 +74,7 @@ model {
   sigma1 ~ cauchy(0, 5);
 }
 ```
-{:.text-document title='{{ site.handouts[1] }}'}
+{:.text-document title="{{ site.data.lesson.handouts[1] }}"}
 
 ===
 
@@ -102,7 +102,7 @@ stanimals <- c(
     M = max(stanimals$species_id),
     as.list(stanimals))
 ~~~
-{:.text-document .no-eval title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .no-eval .text-document}
 
 
 ===
@@ -118,7 +118,7 @@ samp <- stan(file = 'worksheet.stan',
     iter = 1000, chains = 2, cores = 2)
 saveRDS(samp, 'stanimals.RDS')
 ~~~
-{:.text-document .no-eval title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .no-eval .text-document}
 
 
 
@@ -135,7 +135,7 @@ set of coefficients for the model, as judged by its resulting fit to the data.
 ~~~r
 > plot(samp, pars = c('beta0', 'beta2', 'sigma0', 'sigma1'))
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -148,7 +148,7 @@ ci_level: 0.8 (80% intervals)
 outer_level: 0.95 (95% intervals)
 ~~~
 {:.output}
-![ ]({{ site.baseurl }}/images/stan/unnamed-chunk-5-1.png)
+![ ]({% include asset.html path="images/stan/unnamed-chunk-5-1.png" %})
 {:.captioned}
 
 ===
@@ -162,7 +162,7 @@ model---which merely claimed they are normally distributed with variance
 ~~~r
 > plot(samp, pars = 'beta1')
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -175,7 +175,7 @@ ci_level: 0.8 (80% intervals)
 outer_level: 0.95 (95% intervals)
 ~~~
 {:.output}
-![ ]({{ site.baseurl }}/images/stan/unnamed-chunk-6-1.png)
+![ ]({% include asset.html path="images/stan/unnamed-chunk-6-1.png" %})
 {:.captioned}
 
 Perhaps we should revisit that claim, and choose a asymmetric distribution.
@@ -203,11 +203,8 @@ fit <- stan_lmer(
     data = animals,
     chains = 2, cores = 2, iter = 1000)
 ~~~
-{:.text-document .no-eval title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .no-eval .text-document}
 
 
 The `stan_glmer` function allows you to additionally specify a family, same as the `glm` function employed above.
 {:.notes}
-
-===
-

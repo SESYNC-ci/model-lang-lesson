@@ -1,3 +1,6 @@
+---
+---
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -8,9 +11,9 @@
 <meta name="description" content="Write formulas for regression in R and Stan.">
 <link rel="canonical"
   href="http://cyberhelp.sesync.org/model-lang-lesson/course/archive.html">
-<link href="https://cdn.rawgit.com/sesync-ci/lesson-style/v2.0/docs/css/default.css" rel="stylesheet">
-<link href="https://cdn.rawgit.com/sesync-ci/lesson-style/v2.0/docs/css/syntax.css" rel="stylesheet">
-<link href="https://cdn.rawgit.com/sesync-ci/lesson-style/v2.0/docs/css/static.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/sesync-ci/lesson-style@v2.0/docs/css/default.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/sesync-ci/lesson-style@v2.0/docs/css/syntax.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/sesync-ci/lesson-style@v2.0/docs/css/static.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
@@ -604,7 +607,7 @@ Correlation of Fixed Effects:
 log(weight) 0.573 
 </code></pre></div></div>
 
-<p><img src="/model-lang-lesson/images/rs_plot-1.png" alt="" /></p>
+<p><img src="https://cdn.jsdelivr.net/gh/sesync-ci/model-lang-lesson@v0.3/docs/images/rs_plot-1.png" alt="" /></p>
 
 <h3 id="generalized-mixed-models">Generalized Mixed Models</h3>
 
@@ -627,7 +630,7 @@ the Gibbs algorithm.</p>
 
 <p>The result of model fitting through <code class="highlighter-rouge">lm</code> and its descendents in R is an estimated coefficient coupled with the uncertainty in that estimate.</p>
 
-<p class="captioned"><img src="/model-lang-lesson/images/stan/unnamed-chunk-1-1.png" alt=" " /></p>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/sesync-ci/model-lang-lesson@v0.3/docs/images/stan/unnamed-chunk-1-1.png" alt=" " /></p>
 
 <p class="notes">The results produced by Stan are tables of numbers with a column for each coefficient in the model. Each row represents an equally likely set of coefficients for the model, as judged by its resulting fit to the data.</p>
 
@@ -718,7 +721,7 @@ set of coefficients for the model, as judged by its resulting fit to the data.</
 
 <div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>outer_level: 0.95 (95% intervals)
 </code></pre></div></div>
-<p class="captioned"><img src="/model-lang-lesson/images/stan/unnamed-chunk-5-1.png" alt=" " /></p>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/sesync-ci/model-lang-lesson@v0.3/docs/images/stan/unnamed-chunk-5-1.png" alt=" " /></p>
 
 <p>The “random intercepts” due to species_id are also parameters in the
 model—which merely claimed they are normally distributed with variance
@@ -732,7 +735,7 @@ model—which merely claimed they are normally distributed with variance
 
 <div class="output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>outer_level: 0.95 (95% intervals)
 </code></pre></div></div>
-<p class="captioned"><img src="/model-lang-lesson/images/stan/unnamed-chunk-6-1.png" alt=" " /></p>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/sesync-ci/model-lang-lesson@v0.3/docs/images/stan/unnamed-chunk-6-1.png" alt=" " /></p>
 
 <p class="notes">Perhaps we should revisit that claim, and choose a asymmetric distribution.</p>
 

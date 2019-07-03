@@ -26,7 +26,7 @@ The `family` argument determines the family of probability distributions in whic
 The model fit in exercise 1 is (almost) identically produced with a GLM
 using the Gaussian family and identity link.
 
-```{r glm_weight, title = "{{ site.handouts[0] }}"}
+```{r glm_weight, handout = 0}
 fit <- glm(log(weight) ~ species_id,
     family = gaussian,
     data = animals)
@@ -57,7 +57,7 @@ difference.
 Calling `glm` with `family = binomial` using the default "logit" link performs
 logistic regression.
 
-```{r glm_logit, title = '{{ site.handouts[0] }}'}
+```{r glm_logit, handout = 0}
 animals$sex <- factor(animals$sex)
 fit <- glm(sex ~ log(hindfoot_length),
            family = binomial,

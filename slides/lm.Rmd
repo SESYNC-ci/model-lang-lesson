@@ -22,7 +22,7 @@ predictors to its right.
 
 In addition, certain functions are allowed within the formula definition.
 
-```{r lm_weight, title = '{{ site.handouts[0] }}'}
+```{r lm_weight, handout = 0}
 animals <- read.csv('data/animals.csv',
   na.strings = '')
 fit <- lm(
@@ -43,7 +43,7 @@ summary(fit)
 For the predictors in a linear model, there is a big difference between factors
 and numbers.
 
-```{r lm_weight_factor, title = '{{ site.handouts[0] }}'}
+```{r lm_weight_factor, handout = 0}
 fit <- lm(
   log(weight) ~ species_id,
   data = animals)

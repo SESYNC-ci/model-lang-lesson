@@ -41,14 +41,7 @@ fit <- lmer(
   hindfoot_length ~ (1|species_id) + log(weight),
   data = animals)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
-
-
-~~~
-Warning: 'rBind' is deprecated.
- Since R version 3.2.0, base's rbind() should work fine with S4 objects
-~~~
-{:.output}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ===
@@ -58,7 +51,7 @@ Warning: 'rBind' is deprecated.
 ~~~r
 > summary(fit)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -74,13 +67,13 @@ Scaled residuals:
 
 Random effects:
  Groups     Name        Variance Std.Dev.
- species_id (Intercept) 47.377   6.883   
+ species_id (Intercept) 47.378   6.883   
  Residual                1.927   1.388   
 Number of obs: 30738, groups:  species_id, 24
 
 Fixed effects:
             Estimate Std. Error t value
-(Intercept) 16.77000    1.41230   11.87
+(Intercept) 16.77000    1.41231   11.87
 log(weight)  2.13065    0.03799   56.09
 
 Correlation of Fixed Effects:
@@ -133,7 +126,15 @@ fit <- lmer(
     log(weight) + (log(weight) | species_id),
   data = animals)
 ~~~
-{:.text-document title="{{ site.handouts[0] }}"}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+
+~~~
+Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control
+$checkConv, : Model failed to converge with max|grad| = 0.00342356 (tol =
+0.002, component 1)
+~~~
+{:.output}
 
 
 ===
@@ -143,7 +144,7 @@ fit <- lmer(
 ~~~r
 > summary(fit)
 ~~~
-{:.input title="Console"}
+{:title="Console" .input}
 
 
 ~~~
@@ -159,19 +160,21 @@ Scaled residuals:
 
 Random effects:
  Groups     Name        Variance Std.Dev. Corr
- species_id (Intercept) 19.7199  4.4407       
-            log(weight)  0.6731  0.8204   0.76
+ species_id (Intercept) 19.7281  4.4416       
+            log(weight)  0.6735  0.8207   0.76
  Residual                1.8905  1.3750       
 Number of obs: 30738, groups:  species_id, 24
 
 Fixed effects:
             Estimate Std. Error t value
-(Intercept)  17.7170     0.9367  18.914
-log(weight)   1.6920     0.1840   9.196
+(Intercept)  17.7169     0.9369  18.910
+log(weight)   1.6920     0.1840   9.194
 
 Correlation of Fixed Effects:
             (Intr)
 log(weight) 0.573 
+convergence code: 0
+Model failed to converge with max|grad| = 0.00342356 (tol = 0.002, component 1)
 ~~~
 {:.output}
 
@@ -180,7 +183,7 @@ log(weight) 0.573
 
 
 
-![]({{ site.baseurl }}/images/rs_plot-1.png)
+![]({% include asset.html path="images/rs_plot-1.png" %})
 
 ===
 

@@ -66,7 +66,7 @@ on sex as predicted by the log of hindfoot_length.
 
 ### Solution 1
 
-```{r, title = "{{ site.handouts[0] }}"}
+```{r, handout = 0}
 fit <- lm(
   hindfoot_length ~ species_id + log(weight),
   data = animals)
@@ -88,7 +88,7 @@ summary(fit)
 
 ### Solution 2
 
-```{r ex-glm, title = "{{ site.handouts[0] }}"}
+```{r ex-glm, handout = 0}
 fit_lm <- lm(log(weight) ~ species_id,
              data = animals)
 fit_glm <- glm(weight ~ species_id,
@@ -115,7 +115,7 @@ anova(fit_glm, test = 'Chisq')
 
 ### Solution 3
 
-```{r ex-logit, title = "{{ site.handouts[0] }}"}
+```{r ex-logit, handout = 0}
 perognathus <- animals
 perognathus$species_id <- factor(
   perognathus$species_id, levels = c('PF', 'PH'))
@@ -150,7 +150,7 @@ weight ~ (1 | plot_id) + sex
 
 ### Solution 5
 
-```{r, eval = FALSE, title = '{{ site.handouts[0] }}'}
+```{r, eval = FALSE, handout = 0}
 library(rstanarm)
 fit <- stan_glm(
     sex ~ log(hindfoot_length),

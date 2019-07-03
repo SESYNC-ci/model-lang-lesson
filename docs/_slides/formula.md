@@ -13,7 +13,7 @@ standing for linear model.
 > wt_len.fit <- lm(formula = wt_len,
 +                  data = animals)
 ~~~
-{:.input title="Console"}
+{:title="Console" .no-eval .input}
 
 
 The `lm()` function takes a formula argument and a data argument, and computes
