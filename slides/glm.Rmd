@@ -3,17 +3,22 @@
 
 ## Generalized Linear Models
 
-The `lm` function treats the response variable as numeric---the `glm` function lifts this restriction and others. Not through the `formula` syntax, which is the same for calls to `lm`  and `glm`, but through addition of the `family` argument.
+The `lm` function treats the response variable as numeric---the `glm` function
+lifts this restriction and others. Not through the `formula` syntax, which is
+the same for calls to `lm`  and `glm`, but through addition of the `family`
+argument.
 
 ===
 
 ### GLM Families
 
-The `family` argument determines the family of probability distributions in which the response variable belongs. A key difference between families is the data type and range.
+The `family` argument determines the family of probability distributions in
+which the response variable belongs. A key difference between families is the
+data type and range.
 
 ===
 
-| Family             | Data Type | *Default* link                         |
+| Family             | Data Type | (*default*) link functions             |
 |--------------------|-----------|----------------------------------------|
 | `gaussian`         | `double`  | *identity*, log, inverse               |
 | `binomial`         | `boolean` | *logit*, probit, cauchit, log, cloglog |
@@ -23,18 +28,18 @@ The `family` argument determines the family of probability distributions in whic
 
 ===
 
-The model fit in exercise 1 is (almost) identically produced with a GLM
-using the Gaussian family and identity link.
+The previous model fit with `lm` is (almost) identical to a model fit using
+`glm` with the Gaussian family and identity link.
 
-```{r glm_weight, handout = 0}
-fit <- glm(log(weight) ~ species_id,
+```{r, handout = 0}
+fit <- glm(log(WAGP) ~ SCHL,
     family = gaussian,
-    data = animals)
+    data = person)
 ```
 
 ===
 
-```{r glm_weight_summary}
+```{r}
 summary(fit)
 ```
 
@@ -48,7 +53,7 @@ Answer
 : {:.fragment} It's possible. The `lm()` function uses a different (less
 general) fitting procedure than the `glm()` function, which uses IWLS. But with
 64 bits used to store very precise numbers, it's rare to encounter an noticeable
-difference.
+difference in the optimum.
 
 ===
 
@@ -57,17 +62,42 @@ difference.
 Calling `glm` with `family = binomial` using the default "logit" link performs
 logistic regression.
 
-```{r glm_logit, handout = 0}
-animals$sex <- factor(animals$sex)
-fit <- glm(sex ~ log(hindfoot_length),
-           family = binomial,
-           data = animals)
+```{r, handout = 0}
+fit <- glm(SEX ~ WAGP,
+  family = binomial,
+  data = person)
 ```
 
 ===
 
-```{r glm_logit_summary}
+Interpretting the coefficients in the summary is non-obvious, but always works
+the same way. In the `person` table, where men are coded as `1`, the `levels`
+function shows that `2`, or women, are the first level. When using the binomial
+family, the first level of the factor is consider 0 or "failure", and all remaining
+levels (typically just one) are considered 1 or "success". The predicted value, the linear combination of variables and coeficients, is the log odds of "success".
+{:.notes}
+
+The positive coefficient on `WAGP` implies that a higher wage tilts the
+prediction towards men.
+
+```{r}
 summary(fit)
+```
+
+===
+
+The always popular $$R^2$$ indicator for goodness-of-fit is absent from the
+summary of a `glm` result, as is the defult F-Test of the model's significance.
+
+The developers of `glm`, detecting an increase in user sophistication, are
+leaving more of the model assessment up to you. The "null deviance" and
+"residual deviance" provide most of the information we need. The `?anova.glm`
+function allows us to apply the F-test on the deviance change, although there is
+a better alternative.
+{:.notes}
+
+```{r, handout = 0}
+anova(fit, update(fit, SEX ~ 1), test = 'Chisq')
 ```
 
 ===
@@ -79,7 +109,7 @@ as the response. Weights can be necessary for logistic regression, depending on
 the format of the data. The `binomial` family `glm()` works with three different
 response variable formats.
 
-1. `factor` with only or coerced to two levels (binary)
+1. `factor` with only, or coerced to, two levels (binary)
 1. `matrix` with two columns for the count of "successes" and "failures"
 1. `numeric` proprtion of "successes" out of `weights` trials
 

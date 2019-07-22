@@ -6,33 +6,54 @@
 The formula requires a response variable left of a `~` and any number of
 predictors to its right.
 
-| Formula      | Description                    |
-| `y ~ a`      | constant and one predictor     |
+| Formula           | Description |
+|-------------------|-------------|
+| `y ~ a`           | constant and one predictor |
+| `y ~ a + b`       | constant and two predictors |
+| `y ~ a + b + a:b` | constant and two predictors and their interaction |
+
+===
+
+The constant (i.e. intercept) can be explicitly removed, although this is rarely
+needed in practice. Assume an intercept is fitted unless its absence is explicitly noted.
+
+| Formula      | Description |
+|--------------|-------------|
 | `y ~ -1 + a` | one predictor with no constant |
-| `y ~ a + b`  | constant and two predictors    |
 
 ===
 
-| `y ~ a:b`              | constant and one predictor, the interaction of a factor and another variable |
-| `y ~ a*b`              | constant and three predictors                                                |
-| `y ~ a*b - a`          | constant and two predictors                                                  |
-| `y ~ (a + b + ... )^n` | constant and all combinations of predictors up to order `n`                  |
+More or higher-order interactions are included with a shorthand that is sort of
+consistent with the expression's algebraic meaning.
+
+| Formula                | Description |
+|------------------------|-------------|
+| `y ~ a*b`              | all combinations of two variables  |
+| `y ~ (a + b)^2`        | equivalent to `y ~ a*b` |
+| `y ~ (a + b + ... )^n` | all combinations of all predictors up to order `n` |
 
 ===
 
-In addition, certain functions are allowed within the formula definition.
+Data transformation functions are allowed within the formula expression.
+
+| Formula      | Description |
+|--------------|-------------|
+| `y ~ log(a)` | log transformed variable |
+| `y ~ sin(a)` | periodic function of a variable |
+| `y ~ I(a*b)` | product of variables, protected by `I` from expansion |
+
+===
+
+The `WAGP` variable is always positive and includes some values that
+are many orders of magnitude larger than the mean.
 
 ```{r lm_weight, handout = 0}
-animals <- read.csv('data/animals.csv',
-  na.strings = '')
 fit <- lm(
-  hindfoot_length ~ log(weight),
-  data = animals)
+  log(WAGP) ~ SCHL,
+  person)
 ```
 
-===
-
-```{r lm_weight_summary}
+```{r}
 summary(fit)
 ```
 
@@ -43,19 +64,18 @@ summary(fit)
 For the predictors in a linear model, there is a big difference between factors
 and numbers.
 
-```{r lm_weight_factor, handout = 0}
+```{r, handout = 0}
 fit <- lm(
-  log(weight) ~ species_id,
-  data = animals)
+  log(WAGP) ~ AGEP,
+  person)
 ```
 
-===
-
-```{r lm_weight_factor_summary}
+```{r}
 summary(fit)
 ```
 
-The difference between 1 and 24 degrees of freedom between the last two
-models---with one fixed effect each---arises because `species_id` is a factor
-while weight is a numeric vector.
+The difference between 1 and 5 model degrees of freedom between the last two
+summaries---with one fixed effect each---arises because `SCHL` is a a factor
+while `AGEP` is numeric. In the first case you get multiple intercepts,
+while in the second case you get a slope.
 {:.notes}

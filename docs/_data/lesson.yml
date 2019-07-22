@@ -1,11 +1,12 @@
 title: Regression
 handouts:
   - worksheet.R
-  - worksheet.stan
-  - data/animals.csv
-  - data/stanimals.RDS
-  - data/README.md
-tag: v0.3
+  - data/census_pums/sample.csv
+#  - worksheet.stan
+#  - data/animals.csv
+#  - data/stanimals.RDS
+#  - data/README.md
+tag: v0.4
 lesson: 6
 instructor: Ian Carroll
 authors:
@@ -16,6 +17,6 @@ sorter:
   - lm
   - glm
   - lme4
-  - stan
+#  - stan
   - conclude
   - exercise

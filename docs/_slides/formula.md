@@ -9,39 +9,60 @@ standing for linear model.
 
 
 ~~~r
-> wt_len <- weight ~ hindfoot_length
-> wt_len.fit <- lm(formula = wt_len,
-+                  data = animals)
+fit <- lm(
+  formula = WAGP ~ SCHL,
+  data = person)
 ~~~
-{:title="Console" .no-eval .input}
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 The `lm()` function takes a formula argument and a data argument, and computes
-the best fitting linear model (i.e. determine the optimum coefficients via
-least-squared-error).
+the best fitting linear model (i.e. determines coefficients that [minimize the
+sum of squared residuals].
 {:.notes}
+
+[minimize the sum of squared residuals]: https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)
 
 ===
 
-### Formulas + Data
+Data visualizations can help confirm intuition, but only with very simple
+models, typically with just one or two "fixed effects".
 
-The implementation of `lm()` is a specific solution to a general problem: how
-can a human easily write down a statistical model that a machine can interpret,
-relate to data, and optimize through a given fitting procedure?
+
+
+~~~r
+> library(ggplot2)
+> 
+> ggplot(person,
++   aes(x = SCHL, y = WAGP)) +
++   geom_boxplot()
+~~~
+{:title="Console" .input}
+![ ]({% include asset.html path="images/formula/unnamed-chunk-2-1.png" %})
+{:.captioned}
+
+===
+
+### Function, Formula, and Data
+
+The developers of R created an approach to statistical analysis that is both
+concise and flexible from the users perspective, while remaining precise and
+well-specified for a particular fitting procedure.
 {:.notes}
 
-The `lm()` function requires both careful human input and correct metadata:
+The researcher contemplating a new regression analysis faces three initial
+challenges:
 
-1. Use a unquoted "formula" expression that mixes variable names and
-algebra-like operators, to define a design matrix.
-1. Check the variables used in the formula to complete the design matrix.
-1. Compute the [linear least-squares
-estimator](https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)) and
-more.
+1. Choose the function that implements a suitable fitting procedure.
+1. Write down the regression model using a formula expression combining
+variable names with algebra-like operators.
+1. Build a data frame with columns matching these variables that have suitable
+data types for the chosen fitting procedure.
 
-Note that "the details" are left to the `lm()` function where possible. For
-example, whether a variable is a factor or numeric is read from the data frame;
-the formula does not distinguish between data types.
+The formula expressions are usually very concise, in part because the function
+chosen to implement the fitting procedure extracts much necessary information
+from the provided data frame. For example, whether a variable is a factor or
+numeric is not specified in the formula because it is specified in the data.
 {:.notes}
 
 ===
@@ -53,11 +74,10 @@ the formula does not distinguish between data types.
 - "base R" function `glm()`
 - [lme4](){:.rlib} function `lmer()`
 - [lme4](){:.rlib} function `glmer()`
-- [rstan](){:.rlib} models for Stan
 
-Across different packages in R, the formula "mini-language" has evolved to
-allow complex model specification and fitting. Each package adds syntax to the
-formula or new arguments to the fitting function. On a far-distant branch of
-this evolution is the Stan modeling language, which provides the greatest
-flexibility but demands in return the most descriptive language.
+Across different packages in R, the formula "mini-language" has evolved to allow
+complex model specification. Each package adds syntax to the formula or new
+arguments to the fitting function. The `lm` function admits only the simplest
+kinds of expressions, while the [lme4](){:.rlib} packagehas evolved this
+"mini-language" to allow specification of hierarchichal models.
 {:.notes}

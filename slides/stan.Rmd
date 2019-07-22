@@ -5,14 +5,16 @@
 
 Stan is the name of a program that performs an entirely different kind of model
 fitting, and the Stan modelling language is yet another way of writing a
-"formula". Stan is similar to JAGS and BUGS---it is a "sampler", but does not use
-the Gibbs algorithm.
+"formula". Stan is similar to JAGS and BUGS---it is a "sampler", but does not
+use the Gibbs algorithm.
+{:.notes}
 
 ===
 
 ### Sampling vs. Fitting
 
-The result of model fitting through `lm` and its descendents in R is an estimated coefficient coupled with the uncertainty in that estimate.
+The result of model fitting through `lm` and its descendents in R is an
+estimated coefficient coupled with the uncertainty in that estimate.
 
 ```{r, echo = FALSE, message = FALSE}
 plt <- function() {
@@ -32,7 +34,9 @@ plt <- function() {
 plt()
 ```
 
-The results produced by Stan are tables of numbers with a column for each coefficient in the model. Each row represents an equally likely set of coefficients for the model, as judged by its resulting fit to the data.
+The results produced by Stan are tables of numbers with a column for each
+coefficient in the model. Each row represents an equally likely set of
+coefficients for the model, as judged by its resulting fit to the data.
 {:.notes}
 
 ===

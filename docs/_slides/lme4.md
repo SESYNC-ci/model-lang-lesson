@@ -17,29 +17,42 @@ consume a well-defined number of degrees of freedom. Variables added within
 
 ===
 
+Models with random effects should be understood as specifying multiple,
+overlapping probability statements about the observations.
+
+$$
+\begin{align}
+&\log(WAGP_i) \sim Normal(\mu_i, \sigma_0^2) \\
+&\mu_i = \beta_0 + \boldsymbol{\beta_1}[OCCP_i] + \beta_2 \log(SCHL_i) \\
+&\boldsymbol{\beta_1} \sim Normal(0, \boldsymbol{\Sigma_1}) \\
+&\end{align}
+$$
+
+===
+
 The "random intercepts" and "random slopes" models are the two most common
 extensions to a formula with one variable.
 
-| Formula               | Description                                                 |
-|-----------------------|-------------------------------------------------------------|
-| `y ~ a`               | constant and one fixed effect                               |
-| `y ~ (1 | b) + a`     | random intercept for each level in `b` and one fixed effect |
-| `y ~ a + (a | b)`     | random intercept and slope w.r.t. `a` for each level in `b` |
+| Formula                  | Description |
+|--------------------------|-------------|
+| `y ~ (1 | b) + a`        | random intercept for each level in `b` |
+| `y ~ a + (a | b)`        | random intercept and slope w.r.t. `a` for each level in `b` |
 
 ===
 
 ### Random Intercept
 
-The `lmer` and `glmer` functions fit linear and generalized linear models with
-the `lme4` formula syntax.
+The `lmer` function fits linear models with the [lme4](){:.rlib} extensions to
+the `lm` formula syntax.
+
 
 
 
 ~~~r
 library(lme4)
 fit <- lmer(
-  hindfoot_length ~ (1|species_id) + log(weight),
-  data = animals)
+  log(WAGP) ~ (1|OCCP) + SCHL,
+  data = person)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
@@ -56,29 +69,37 @@ fit <- lmer(
 
 ~~~
 Linear mixed model fit by REML ['lmerMod']
-Formula: hindfoot_length ~ (1 | species_id) + log(weight)
-   Data: animals
+Formula: log(WAGP) ~ (1 | OCCP) + SCHL
+   Data: person
 
-REML criterion at convergence: 107596.2
+REML criterion at convergence: 12766.4
 
 Scaled residuals: 
-     Min       1Q   Median       3Q      Max 
--17.3183  -0.5004   0.0254   0.5731  21.4700 
+    Min      1Q  Median      3Q     Max 
+-8.6724 -0.3421  0.2034  0.6046  2.8378 
 
 Random effects:
- Groups     Name        Variance Std.Dev.
- species_id (Intercept) 47.378   6.883   
- Residual                1.927   1.388   
-Number of obs: 30738, groups:  species_id, 24
+ Groups   Name        Variance Std.Dev.
+ OCCP     (Intercept) 0.3945   0.6281  
+ Residual             1.0598   1.0295  
+Number of obs: 4246, groups:  OCCP, 380
 
 Fixed effects:
-            Estimate Std. Error t value
-(Intercept) 16.77000    1.41231   11.87
-log(weight)  2.13065    0.03799   56.09
+                   Estimate Std. Error t value
+(Intercept)         9.62243    0.06646 144.777
+SCHLHigh School     0.34069    0.06304   5.404
+SCHLCollege Credit  0.29188    0.06005   4.861
+SCHLBachelor's      0.65614    0.07082   9.265
+SCHLMaster's        0.88218    0.08742  10.092
+SCHLDoctorate       1.04715    0.20739   5.049
 
 Correlation of Fixed Effects:
-            (Intr)
-log(weight) -0.087
+            (Intr) SCHLHS SCHLCC SCHLB' SCHLM'
+SCHLHghSchl -0.676                            
+SCHLCllgCrd -0.736  0.752                     
+SCHLBchlr's -0.677  0.653  0.723              
+SCHLMastr's -0.568  0.528  0.586  0.602       
+SCHLDoctort -0.232  0.218  0.242  0.242  0.247
 ~~~
 {:.output}
 
@@ -88,21 +109,6 @@ lack of a widely accepted measure of null and residual deviance. The notions of
 model saturation, degrees of freedom, and independence of observations have all
 crossed onto thin ice.
 {:.notes}
-
-===
-
-### Non-independence
-
-Models with random effects should be understood as specifying multiple,
-overlapping probability statements about the observations.
-
-$$
-\begin{align}
-&hindfoot\_length_i \sim Normal(\mu_i, \sigma_0^2) \\
-&\mu_i = \beta_0 + \beta_1[species\_id_i] + \beta_2 \log(weight_i) \\
-&\beta_1[j] \sim Normal(0, \sigma_1^2) \\
-&\end{align}
-$$
 
 In a `lm` or `glm` fit, each response is conditionally independent, given it's
 predictors and the model coefficients. Each observation corresponds to it's own
@@ -115,29 +121,43 @@ longer conditionally independent, given it's predictors and model coefficients.
 ### Random Slope
 
 Adding a numeric variable on the left of a grouping specified with `(...|...)`
-produces a "random slope" model. Here, separate coefficients for hindfoot_length
-are allowed for each species.
+produces a "random slope" model. Here, separate coefficients for hours worked
+are allowed for each level of education.
 
 
 
 ~~~r
 fit <- lmer(
-  hindfoot_length ~ 
-    log(weight) + (log(weight) | species_id),
-  data = animals)
+  log(WAGP) ~ (WKHP | SCHL),
+  data = person)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
 Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control
-$checkConv, : Model failed to converge with max|grad| = 0.00342356 (tol =
+$checkConv, : Model failed to converge with max|grad| = 0.207748 (tol =
 0.002, component 1)
 ~~~
 {:.output}
 
 
 ===
+
+The warning that the procedure `failed to converge` is worth paying attention
+to. In this case, we can proceed by switching to the slower numerical optimizer
+that [lme4](){:.rlib} previously used by default.
+
+
+
+~~~r
+fit <- lmer(
+  log(WAGP) ~ (WKHP | SCHL),
+  data = person, 
+  control = lmerControl(optimizer = "bobyqa"))
+~~~
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
 
 
 
@@ -149,45 +169,52 @@ $checkConv, : Model failed to converge with max|grad| = 0.00342356 (tol =
 
 ~~~
 Linear mixed model fit by REML ['lmerMod']
-Formula: hindfoot_length ~ log(weight) + (log(weight) | species_id)
-   Data: animals
+Formula: log(WAGP) ~ (WKHP | SCHL)
+   Data: person
+Control: lmerControl(optimizer = "bobyqa")
 
-REML criterion at convergence: 107030.8
+REML criterion at convergence: 11670.1
 
 Scaled residuals: 
-     Min       1Q   Median       3Q      Max 
--17.4953  -0.4753   0.0349   0.5259  21.6529 
+    Min      1Q  Median      3Q     Max 
+-9.4561 -0.3967  0.1710  0.6409  2.7948 
 
 Random effects:
- Groups     Name        Variance Std.Dev. Corr
- species_id (Intercept) 19.7281  4.4416       
-            log(weight)  0.6735  0.8207   0.76
- Residual                1.8905  1.3750       
-Number of obs: 30738, groups:  species_id, 24
+ Groups   Name        Variance  Std.Dev. Corr 
+ SCHL     (Intercept) 11.986642 3.46217       
+          WKHP         0.003189 0.05647  -1.00
+ Residual              0.902750 0.95013       
+Number of obs: 4246, groups:  SCHL, 6
 
 Fixed effects:
             Estimate Std. Error t value
-(Intercept)  17.7169     0.9369  18.910
-log(weight)   1.6920     0.1840   9.194
-
-Correlation of Fixed Effects:
-            (Intr)
-log(weight) 0.573 
-convergence code: 0
-Model failed to converge with max|grad| = 0.00342356 (tol = 0.002, component 1)
+(Intercept)  11.3194     0.1052   107.6
 ~~~
 {:.output}
 
 
 ===
 
+The `predict` function extracts model predictions from a fitted model object
+(i.e. the output of `lm`, `glm`, `lmer`, and `gmler`), providing one easy
+way to visualize the effect of estimated coeficients.
 
 
-![]({% include asset.html path="images/rs_plot-1.png" %})
+
+~~~r
+ggplot(person,
+  aes(x = WKHP, y = log(WAGP), color = SCHL)) +
+  geom_point() +
+  geom_line(aes(y = predict(fit))) +
+  labs(title = 'Random intercept and slope with lmer')
+~~~
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+![ ]({% include asset.html path="images/lme4/unnamed-chunk-5-1.png" %})
+{:.captioned}
 
 ===
 
 ### Generalized Mixed Models
 
-The `glmer` function merely adds to `lmer` the option to specify several
-exponential family distributions for the response variable.
+The `glmer` function adds upon `lmer` the option to specify the same group of
+exponential family distributions for the residuals available to `glm`.

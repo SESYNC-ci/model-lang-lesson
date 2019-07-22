@@ -3,301 +3,191 @@
 
 ## Exercises
 
-===
-
 ### Exercise 1
 
-Regress "hindfoot_length" against "species_id" and the log of "weight". Does it
-appear that the Chihuahuan Desert's common kangaroo rats (DM) have largish feet
-for their weight?
-
-[View solution](#solution-3)
-{:.notes}
-
-===
+Regress `WKHP` against `AGEP`, adding a second-order interaction to allow for
+possible curvature in the relationship. Plot the predicted values over the data
+to verify the coefficients indicate a downward quadratic relationship.
 
 ### Exercise 2
 
-Weight is actually a positive integer in this dataset. Fit the log of weight
-against species ID using `lm()`, and fit raw weight against species ID using
-`glm()` with the Poisson family. According the the `anova()` table, are both
-models plausible? Hint: you may need to provide additional arguments to
-`anova()`.
-
-[View solution](#solution-2)
-{:.notes}
-
-===
+Controlling for a person's educational attainment, fit a linear model that
+addresses the question of wage disparity between men and women in the U.S.
+workforce. What other predictor from the `person` data frame would increases the
+goodness-of-fit of the "control" model, before SEX is considered.
 
 ### Exercise 3
 
-You are standing in the Chihuahuan desert, when a pocket mouse (genus
-*Perognathus*) suddenly runs up your pant leg. It weighs down your pocket quite
-a bit, relative to your many similar pocket mouse experiences. Run a binomial
-family GLM on the two Perognathus species in the animals table that may help you
-predict to which species it belongs. Hint: Begin by mutating `species_id` into a
-`factor()` with `levels = c("PF", "PH")`.
-
-[View solution](#solution-3)
-{:.notes}
-
-===
+Set up a generalized mixed effects model on whether a person attained an advanced
+degree (Master's or Doctorate). Include sex and age as fixed effects, and include
+a random intercept according to occupation.
 
 ### Exercise 4
 
-Write down the formula for a random intercepts model with a fixed effect of
-sex and a random effect of plot on each animal's weight.
-
-[View solution](#solution-4)
-{:.notes}
-
-===
-
-### Exercise 5
-
-Use `stan_glm` to evaluate the logistic regression performed earlier with `glm`
-on sex as predicted by the log of hindfoot_length.
+Write down the formula for a random intercepts model for earned wages with a
+fixed effect of sex and a random effect of educational attainment.
 
 ===
 
 ## Solutions
 
-===
-
-### Solution 1
-
 
 
 ~~~r
 fit <- lm(
-  hindfoot_length ~ species_id + log(weight),
-  data = animals)
+  WKHP ~ AGEP + I(AGEP^2),
+  person)
+
+ggplot(person,
+  aes(x = AGEP, y = WKHP)) +
+  geom_point(shape = 'o') +
+  geom_line(aes(y = predict(fit)))
 ~~~
-{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
-
-
-===
-
-The estimated coefficient for "species_idDM" and associated "***" suggest
-"yes".
+{:title="Solution 1" .text-document}
+![ ]({% include asset.html path="images/exercise/unnamed-chunk-1-1.png" %})
+{:.captioned}
 
 
 
 ~~~r
-> summary(fit)
+fit <- lm(WAGP ~ SCHL, person)
+summary(fit)
 ~~~
-{:title="Console" .input}
+{:title="Solution 2" .text-document}
 
 
 ~~~
 
 Call:
-lm(formula = hindfoot_length ~ species_id + log(weight), data = animals)
+lm(formula = WAGP ~ SCHL, data = person)
 
 Residuals:
-     Min       1Q   Median       3Q      Max 
--24.0407  -0.6951   0.0352   0.7954  29.8038 
+   Min     1Q Median     3Q    Max 
+-61303 -18827  -5827  12325 145173 
 
 Coefficients:
-             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)    8.4710     0.2222  38.127  < 2e-16 ***
-species_idDM  19.5411     0.2164  90.316  < 2e-16 ***
-species_idDO  18.8751     0.2189  86.234  < 2e-16 ***
-species_idDS  31.3797     0.2320 135.262  < 2e-16 ***
-species_idNL  13.0945     0.2382  54.967  < 2e-16 ***
-species_idOL   4.7893     0.2176  22.011  < 2e-16 ***
-species_idOT   5.0538     0.2129  23.743  < 2e-16 ***
-species_idOX   5.4411     0.6553   8.303  < 2e-16 ***
-species_idPB  10.3330     0.2144  48.196  < 2e-16 ***
-species_idPE   5.2348     0.2137  24.499  < 2e-16 ***
-species_idPF   2.7361     0.2101  13.023  < 2e-16 ***
-species_idPH  10.0344     0.3277  30.622  < 2e-16 ***
-species_idPI   7.3669     0.5336  13.807  < 2e-16 ***
-species_idPL   5.3377     0.3119  17.115  < 2e-16 ***
-species_idPM   5.5085     0.2152  25.601  < 2e-16 ***
-species_idPP   7.2761     0.2102  34.623  < 2e-16 ***
-species_idPX   4.7670     1.0036   4.750 2.05e-06 ***
-species_idRF   3.5411     0.2637  13.430  < 2e-16 ***
-species_idRM   2.9976     0.2090  14.343  < 2e-16 ***
-species_idRO   1.9825     0.5327   3.722 0.000198 ***
-species_idRX   4.2909     1.0034   4.276 1.90e-05 ***
-species_idSF   9.7021     0.3100  31.298  < 2e-16 ***
-species_idSH  11.1301     0.2535  43.909  < 2e-16 ***
-species_idSO   8.7729     0.3093  28.364  < 2e-16 ***
-log(weight)    2.1277     0.0380  55.998  < 2e-16 ***
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)           19614       1363  14.391  < 2e-16 ***
+SCHLHigh School        8062       1630   4.945 7.89e-07 ***
+SCHLCollege Credit    10214       1518   6.727 1.96e-11 ***
+SCHLBachelor's        29976       1684  17.795  < 2e-16 ***
+SCHLMaster's          35197       2003  17.569  < 2e-16 ***
+SCHLDoctorate         43889       5152   8.519  < 2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 1.388 on 30713 degrees of freedom
-  (4811 observations deleted due to missingness)
-Multiple R-squared:  0.9789,	Adjusted R-squared:  0.9788 
-F-statistic: 5.924e+04 on 24 and 30713 DF,  p-value: < 2.2e-16
+Residual standard error: 27660 on 4240 degrees of freedom
+Multiple R-squared:  0.1389,	Adjusted R-squared:  0.1379 
+F-statistic: 136.8 on 5 and 4240 DF,  p-value: < 2.2e-16
 ~~~
 {:.output}
 
 
-[Return](#exercise-1)
-{:.notes}
-
-===
-
-### Solution 2
+The "baseline" model includes educational attainment, when compared to a model
+with sex as a second predictor, there is a strong indication of signifigance.
 
 
 
 ~~~r
-fit_lm <- lm(log(weight) ~ species_id,
-             data = animals)
-fit_glm <- glm(weight ~ species_id,
-               family = poisson,
-               data = animals)
+anova(fit, update(fit, WAGP ~ SCHL + SEX))
 ~~~
-{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
-
-
-===
-
-
-
-~~~r
-> anova(fit_lm)
-~~~
-{:title="Console" .input}
+{:title="Solution 2" .text-document}
 
 
 ~~~
 Analysis of Variance Table
 
-Response: log(weight)
-              Df  Sum Sq Mean Sq F value    Pr(>F)    
-species_id    24 16501.4  687.56   15800 < 2.2e-16 ***
-Residuals  32258  1403.8    0.04                      
+Model 1: WAGP ~ SCHL
+Model 2: WAGP ~ SCHL + SEX
+  Res.Df        RSS Df  Sum of Sq      F    Pr(>F)    
+1   4240 3.2450e+12                                   
+2   4239 3.0469e+12  1 1.9806e+11 275.55 < 2.2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ~~~
 {:.output}
 
 
-===
+Adding WKHP to the baseline increases the $$R^2$$ to `.32` from `.14` with just
+`SCHL`. There is no way to include the possibility that hours worked also
+dependends on sex, giving a direct and indirect path to the gender wage gap, in
+a linear model.
 
 
 
 ~~~r
-> anova(fit_glm, test = 'Chisq')
+summary(update(fit, WAGP ~ SCHL + WKHP))
 ~~~
-{:title="Console" .input}
-
-
-~~~
-Analysis of Deviance Table
-
-Model: poisson, link: log
-
-Response: weight
-
-Terms added sequentially (first to last)
-
-
-           Df Deviance Resid. Df Resid. Dev  Pr(>Chi)    
-NULL                       32282     775950              
-species_id 24   718546     32258      57404 < 2.2e-16 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-~~~
-{:.output}
-
-
-[Return](#exercise-2)
-{:.notes}
-
-===
-
-### Solution 3
-
-
-
-~~~r
-perognathus <- animals
-perognathus$species_id <- factor(
-  perognathus$species_id, levels = c('PF', 'PH'))
-fit <- glm(species_id ~ weight,
-    family = binomial,
-    data = perognathus)
-~~~
-{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
-
-
-===
-
-The negative intercept is due to the much higher frequency of "failures" (the first level or *P. flavus*). The positive effect of weight means you've probably got a *P hispidus* in your pocket.
-
-
-
-~~~r
-> summary(fit)
-~~~
-{:title="Console" .input}
+{:title="Solution 2" .text-document}
 
 
 ~~~
 
 Call:
-glm(formula = species_id ~ weight, family = binomial, data = perognathus)
+lm(formula = WAGP ~ SCHL + WKHP, data = person)
 
-Deviance Residuals: 
-     Min        1Q    Median        3Q       Max  
--1.83312  -0.03294  -0.02487  -0.01878   2.25500  
+Residuals:
+   Min     1Q Median     3Q    Max 
+-82762 -14392  -3919   9306 142326 
 
 Coefficients:
-             Estimate Std. Error z value Pr(>|z|)    
-(Intercept) -12.57789    1.94715  -6.460 1.05e-10 ***
-weight        0.56207    0.09342   6.017 1.78e-09 ***
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)        -16510.68    1627.64 -10.144  < 2e-16 ***
+SCHLHigh School      3230.58    1458.67   2.215   0.0268 *  
+SCHLCollege Credit   7146.98    1354.98   5.275 1.40e-07 ***
+SCHLBachelor's      23865.31    1511.03  15.794  < 2e-16 ***
+SCHLMaster's        27993.27    1796.83  15.579  < 2e-16 ***
+SCHLDoctorate       34789.96    4595.62   7.570 4.54e-14 ***
+WKHP                 1050.93      31.56  33.304  < 2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-(Dispersion parameter for binomial family taken to be 1)
-
-    Null deviance: 305.082  on 1578  degrees of freedom
-Residual deviance:  23.771  on 1577  degrees of freedom
-  (33970 observations deleted due to missingness)
-AIC: 27.771
-
-Number of Fisher Scoring iterations: 10
+Residual standard error: 24630 on 4239 degrees of freedom
+Multiple R-squared:  0.3175,	Adjusted R-squared:  0.3165 
+F-statistic: 328.6 on 6 and 4239 DF,  p-value: < 2.2e-16
 ~~~
 {:.output}
 
 
-[Return](#exercise-3)
-{:.notes}
 
-===
 
-### Solution 4
+~~~r
+df <- person
+levels(df$SCHL) <- c(0, 0, 0, 0, 1, 1)
+fit <- glmer(
+  SCHL ~ (1 | OCCP) + AGEP,
+  family = binomial,
+  data = df)
+anova(fit, update(fit, . ~ . + SEX), test = 'Chisq')
+~~~
+{:title="Solution 3" .text-document}
+
+
+~~~
+Data: df
+Models:
+fit: SCHL ~ (1 | OCCP) + AGEP
+update(fit, . ~ . + SEX): SCHL ~ (1 | OCCP) + AGEP + SEX
+                         Df    AIC    BIC  logLik deviance  Chisq Chi Df
+fit                       3 1996.5 2015.6 -995.27   1990.5              
+update(fit, . ~ . + SEX)  4 1997.6 2023.0 -994.79   1989.6 0.9572      1
+                         Pr(>Chisq)
+fit                                
+update(fit, . ~ . + SEX)     0.3279
+~~~
+{:.output}
+
 
 
 
 ~~~r
-> weight ~ (1 | plot_id) + sex
+WAGP ~ (1 | SCHL) + SEX
 ~~~
-{:title="Console" .no-eval .input}
+{:title="Solution 4" .text-document}
 
 
-[Return](#exercise-4)
-{:.notes}
-
-===
-
-### Solution 5
-
-
-
-~~~r
-library(rstanarm)
-fit <- stan_glm(
-    sex ~ log(hindfoot_length),
-    data = animals, 
-    family = binomial(), 
-    chains = 2, cores = 2, iter = 1000)
 ~~~
-{:title="{{ site.data.lesson.handouts[0] }}" .no-eval .text-document}
+WAGP ~ (1 | SCHL) + SEX
+~~~
+{:.output}
 

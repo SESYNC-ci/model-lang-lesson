@@ -3,158 +3,76 @@
 
 ## Exercises
 
-===
-
 ### Exercise 1
 
-Regress "hindfoot_length" against "species_id" and the log of "weight". Does it
-appear that the Chihuahuan Desert's common kangaroo rats (DM) have largish feet
-for their weight?
-
-[View solution](#solution-3)
-{:.notes}
-
-===
+Regress `WKHP` against `AGEP`, adding a second-order interaction to allow for
+possible curvature in the relationship. Plot the predicted values over the data
+to verify the coefficients indicate a downward quadratic relationship.
 
 ### Exercise 2
 
-Weight is actually a positive integer in this dataset. Fit the log of weight
-against species ID using `lm()`, and fit raw weight against species ID using
-`glm()` with the Poisson family. According the the `anova()` table, are both
-models plausible? Hint: you may need to provide additional arguments to
-`anova()`.
-
-[View solution](#solution-2)
-{:.notes}
-
-===
+Controlling for a person's educational attainment, fit a linear model that
+addresses the question of wage disparity between men and women in the U.S.
+workforce. What other predictor from the `person` data frame would increases the
+goodness-of-fit of the "control" model, before SEX is considered.
 
 ### Exercise 3
 
-You are standing in the Chihuahuan desert, when a pocket mouse (genus
-*Perognathus*) suddenly runs up your pant leg. It weighs down your pocket quite
-a bit, relative to your many similar pocket mouse experiences. Run a binomial
-family GLM on the two Perognathus species in the animals table that may help you
-predict to which species it belongs. Hint: Begin by mutating `species_id` into a
-`factor()` with `levels = c("PF", "PH")`.
-
-[View solution](#solution-3)
-{:.notes}
-
-===
+Set up a generalized mixed effects model on whether a person attained an advanced
+degree (Master's or Doctorate). Include sex and age as fixed effects, and include
+a random intercept according to occupation.
 
 ### Exercise 4
 
-Write down the formula for a random intercepts model with a fixed effect of
-sex and a random effect of plot on each animal's weight.
-
-[View solution](#solution-4)
-{:.notes}
-
-===
-
-### Exercise 5
-
-Use `stan_glm` to evaluate the logistic regression performed earlier with `glm`
-on sex as predicted by the log of hindfoot_length.
+Write down the formula for a random intercepts model for earned wages with a
+fixed effect of sex and a random effect of educational attainment.
 
 ===
 
 ## Solutions
 
-===
-
-### Solution 1
-
-```{r, handout = 0}
+```{r, title = "Solution 1"}
 fit <- lm(
-  hindfoot_length ~ species_id + log(weight),
-  data = animals)
+  WKHP ~ AGEP + I(AGEP^2),
+  person)
+
+ggplot(person,
+  aes(x = AGEP, y = WKHP)) +
+  geom_point(shape = 'o') +
+  geom_line(aes(y = predict(fit)))
 ```
 
-===
-
-The estimated coefficient for "species_idDM" and associated "***" suggest
-"yes".
-
-```{r}
+```{r, title = "Solution 2"}
+fit <- lm(WAGP ~ SCHL, person)
 summary(fit)
 ```
 
-[Return](#exercise-1)
-{:.notes}
+The "baseline" model includes educational attainment, when compared to a model
+with sex as a second predictor, there is a strong indication of signifigance.
 
-===
-
-### Solution 2
-
-```{r ex-glm, handout = 0}
-fit_lm <- lm(log(weight) ~ species_id,
-             data = animals)
-fit_glm <- glm(weight ~ species_id,
-               family = poisson,
-               data = animals)
+```{r, title = "Solution 2"}
+anova(fit, update(fit, WAGP ~ SCHL + SEX))
 ```
 
-===
+Adding WKHP to the baseline increases the $$R^2$$ to `.32` from `.14` with just
+`SCHL`. There is no way to include the possibility that hours worked also
+dependends on sex, giving a direct and indirect path to the gender wage gap, in
+a linear model.
 
-```{r}
-anova(fit_lm)
+```{r, title = "Solution 2"}
+summary(update(fit, WAGP ~ SCHL + WKHP))
 ```
 
-===
-
-```{r}
-anova(fit_glm, test = 'Chisq')
+```{r, title = "Solution 3"}
+df <- person
+levels(df$SCHL) <- c(0, 0, 0, 0, 1, 1)
+fit <- glmer(
+  SCHL ~ (1 | OCCP) + AGEP,
+  family = binomial,
+  data = df)
+anova(fit, update(fit, . ~ . + SEX), test = 'Chisq')
 ```
 
-[Return](#exercise-2)
-{:.notes}
-
-===
-
-### Solution 3
-
-```{r ex-logit, handout = 0}
-perognathus <- animals
-perognathus$species_id <- factor(
-  perognathus$species_id, levels = c('PF', 'PH'))
-fit <- glm(species_id ~ weight,
-    family = binomial,
-    data = perognathus)
-```
-
-===
-
-The negative intercept is due to the much higher frequency of "failures" (the first level or *P. flavus*). The positive effect of weight means you've probably got a *P hispidus* in your pocket.
-
-```{r ex-logit-2}
-summary(fit)
-```
-
-[Return](#exercise-3)
-{:.notes}
-
-===
-
-### Solution 4
-
-```{r eval = FALSE}
-weight ~ (1 | plot_id) + sex
-```
-
-[Return](#exercise-4)
-{:.notes}
-
-===
-
-### Solution 5
-
-```{r, eval = FALSE, handout = 0}
-library(rstanarm)
-fit <- stan_glm(
-    sex ~ log(hindfoot_length),
-    data = animals, 
-    family = binomial(), 
-    chains = 2, cores = 2, iter = 1000)
+```{r, title = "Solution 4"}
+WAGP ~ (1 | SCHL) + SEX
 ```
