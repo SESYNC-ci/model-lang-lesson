@@ -1,69 +1,81 @@
 # Linear models
 
-... <- read.csv(...,
-  na.strings = '')
-fit <- ...(
+library(readr)
+library(dplyr)
+
+person <- read_csv(
+  file = ...,
+  col_types = cols_only(
+    ... = 'i',  # Age
+    ... = 'd',  # Wages or salary income past 12 months
+    ... = 'i',  # Educational attainment
+    ... = 'f',   # Sex
+    ... = 'f',  # Occupation recode based on 2010 OCC codes
+    ... = 'i')) # Usual hours worked per week past 12 months
+
+person <- within(person, {
+  SCHL <- factor(SCHL)
+  levels(SCHL) <- list(
+    'Incomplete' = c(1:15),
+    'High School' = 16,
+    'College Credit' = 17:20,
+    'Bachelor\'s' = 21,
+    'Master\'s' = 22:23,
+    'Doctorate' = 24)}) %>%
+  filter(
+    WAGP > 0,
+    WAGP < max(WAGP, na.rm = TRUE))
+
+# Formula Notation
+
+fit <- lm(
+  formula = ...,
+  data = ...)
+
+fit <- lm(
   ...,
-  ...)
+  person)
 
 # Metadata matters
 
 fit <- lm(
   ...,
-  data = animals)
+  person)
 
 # GLM families
 
 fit <- ...(...,
   ...,
-  data = animals)
+  person)
 
-# Logistic regression
+# Logistic Regression
 
-animals$sex <- ...(...)
 fit <- glm(...,
   ...,
-  data = animals)
+  person)
 
-# Random intercept
+...(fit, update(fit, ...), test = 'Chisq')
+
+# Random Intercept
 
 library(...)
 fit <- ...(
   ...,
-  data = animals)
+  data = person)
 
-# Random slope
+# Random Slope
 
 fit <- lmer(
-  hindfoot_length ~ 
-    ...,
-  data = animals)
+  ...
+  data = person)
 
-# RStan
+fit <- lmer(
+  log(WAGP) ~ (WKHP | SCHL),
+  data = person,
+  control = ...)
 
-library(dplyr)
-stanimals <- animals %>%
-  select(...) %>%
-  na.omit() %>%
-  mutate(
-    log_weight = log(weight),
-    species_id = ...) %>%
-  select(-weight)
-stanimals <- c(
-  N = ...,
-  M = ...,
-  ...)
-
-library(rstan)
-samp <- stan(file = ...,
-             data = ...,
-             iter = ...)
-saveRDS(samp, 'stanimals.RDS')
-
-## Pre-compiled Stan
-
-library(rstanarm)
-fit <- ...(
-  ...,
-  data = animals,
-  ...)
+ggplot(person,
+  aes(x = WKHP, y = log(WAGP), color = SCHL)) +
+  geom_point() +
+  geom_line(...) +
+  labs(title = 'Random intercept and slope with lmer')
