@@ -9,6 +9,9 @@ handouts:
 tag: v0.4
 lesson: 6
 instructor: Ian Carroll
+lifecycle: stable # status for lifecycle badge
+badgecolor: green # color for lifecycle badge
+warning: false # whether to include note about lifecycle status
 authors:
   - Ian Carroll
 sorter:
