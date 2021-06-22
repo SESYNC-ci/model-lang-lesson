@@ -2,7 +2,7 @@
 
 ## Regression Models Lesson
 
-Write formulas for regression in R and Stan.
+Write formulas for regression in R.
 
 ## Instructor Notes
 
