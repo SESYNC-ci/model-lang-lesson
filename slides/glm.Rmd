@@ -46,7 +46,7 @@ summary(fit)
 ===
 
 Question
-: Should the coeficient estimates between this Gaussian `glm()` and the previous
+: Should the coefficient estimates between this Gaussian `glm()` and the previous
 `lm()` be different?
 
 Answer

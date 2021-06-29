@@ -19,4 +19,3 @@ When stuck, ask for help on [Cross Validated]. If you are having trouble with
 
 [Cross Validated]: https://stats.stackexchange.com/
 [Ben Bolker]: https://stats.stackexchange.com/users/2126/ben-bolker
-[Stan users/devs]: https://discourse.mc-stan.org/
