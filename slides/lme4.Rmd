@@ -23,7 +23,7 @@ overlapping probability statements about the observations.
 $$
 \begin{align}
 &\log(WAGP_i) \sim Normal(\mu_i, \sigma_0^2) \\
-&\mu_i = \beta_0 + \boldsymbol{\beta_1}[OCCP_i] + \beta_2 \log(SCHL_i) \\
+&\mu_i = \beta_0 + \boldsymbol{\beta_1}[OCCP_i] + \beta_2 [SCHL_i] \\
 &\boldsymbol{\beta_1} \sim Normal(0, \boldsymbol{\Sigma_1}) \\
 &\end{align}
 $$
