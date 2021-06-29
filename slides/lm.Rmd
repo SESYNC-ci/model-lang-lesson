@@ -50,7 +50,7 @@ are many orders of magnitude larger than the mean.
 ```{r lm_weight, handout = 0}
 fit <- lm(
   log(WAGP) ~ SCHL,
-  person)
+  pums)
 ```
 
 ```{r}
@@ -67,7 +67,7 @@ and numbers.
 ```{r, handout = 0}
 fit <- lm(
   log(WAGP) ~ AGEP,
-  person)
+  pums)
 ```
 
 ```{r}

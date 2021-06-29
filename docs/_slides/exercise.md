@@ -13,8 +13,8 @@ to verify the coefficients indicate a downward quadratic relationship.
 
 Controlling for a person's educational attainment, fit a linear model that
 addresses the question of wage disparity between men and women in the U.S.
-workforce. What other predictor from the `person` data frame would increases the
-goodness-of-fit of the "control" model, before SEX is considered.
+workforce. What other predictor from the `pums` data frame would increase the
+goodness-of-fit of the "control" model, before SEX is considered?
 
 ### Exercise 3
 
@@ -36,9 +36,9 @@ fixed effect of sex and a random effect of educational attainment.
 ~~~r
 fit <- lm(
   WKHP ~ AGEP + I(AGEP^2),
-  person)
+  pums)
 
-ggplot(person,
+ggplot(pums,
   aes(x = AGEP, y = WKHP)) +
   geom_point(shape = 'o') +
   geom_line(aes(y = predict(fit)))
@@ -50,7 +50,7 @@ ggplot(person,
 
 
 ~~~r
-fit <- lm(WAGP ~ SCHL, person)
+fit <- lm(WAGP ~ SCHL, pums)
 summary(fit)
 ~~~
 {:title="Solution 2" .text-document}
@@ -59,7 +59,7 @@ summary(fit)
 ~~~
 
 Call:
-lm(formula = WAGP ~ SCHL, data = person)
+lm(formula = WAGP ~ SCHL, data = pums)
 
 Residuals:
    Min     1Q Median     3Q    Max 
@@ -124,7 +124,7 @@ summary(update(fit, WAGP ~ SCHL + WKHP))
 ~~~
 
 Call:
-lm(formula = WAGP ~ SCHL + WKHP, data = person)
+lm(formula = WAGP ~ SCHL + WKHP, data = pums)
 
 Residuals:
    Min     1Q Median     3Q    Max 
@@ -152,7 +152,7 @@ F-statistic: 328.6 on 6 and 4239 DF,  p-value: < 2.2e-16
 
 
 ~~~r
-df <- person
+df <- pums
 levels(df$SCHL) <- c(0, 0, 0, 0, 1, 1)
 fit <- glmer(
   SCHL ~ (1 | OCCP) + AGEP,
@@ -168,9 +168,9 @@ Data: df
 Models:
 fit: SCHL ~ (1 | OCCP) + AGEP
 update(fit, . ~ . + SEX): SCHL ~ (1 | OCCP) + AGEP + SEX
-                         Df    AIC    BIC  logLik deviance  Chisq Chi Df
-fit                       3 1996.5 2015.6 -995.27   1990.5              
-update(fit, . ~ . + SEX)  4 1997.6 2023.0 -994.79   1989.6 0.9572      1
+                         npar    AIC    BIC  logLik deviance  Chisq Df
+fit                         3 1996.5 2015.6 -995.27   1990.5          
+update(fit, . ~ . + SEX)    4 1997.6 2023.0 -994.79   1989.6 0.9572  1
                          Pr(>Chisq)
 fit                                
 update(fit, . ~ . + SEX)     0.3279

@@ -9,7 +9,7 @@ standing for linear model.
 ```{r, handout = 0}
 fit <- lm(
   formula = WAGP ~ SCHL,
-  data = person)
+  data = pums)
 ```
 
 The `lm()` function takes a formula argument and a data argument, and computes
@@ -27,7 +27,7 @@ models, typically with just one or two "fixed effects".
 ```{r}
 library(ggplot2)
 
-ggplot(person,
+ggplot(pums,
   aes(x = SCHL, y = WAGP)) +
   geom_boxplot()
 ```

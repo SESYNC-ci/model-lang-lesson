@@ -52,7 +52,7 @@ the `lm` formula syntax.
 library(lme4)
 fit <- lmer(
   log(WAGP) ~ (1|OCCP) + SCHL,
-  data = person)
+  data = pums)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
@@ -70,7 +70,7 @@ fit <- lmer(
 ~~~
 Linear mixed model fit by REML ['lmerMod']
 Formula: log(WAGP) ~ (1 | OCCP) + SCHL
-   Data: person
+   Data: pums
 
 REML criterion at convergence: 12766.4
 
@@ -129,15 +129,14 @@ are allowed for each level of education.
 ~~~r
 fit <- lmer(
   log(WAGP) ~ (WKHP | SCHL),
-  data = person)
+  data = pums)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
-Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control
-$checkConv, : Model failed to converge with max|grad| = 0.207748 (tol =
-0.002, component 1)
+Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
+Model failed to converge with max|grad| = 0.207748 (tol = 0.002, component 1)
 ~~~
 {:.output}
 
@@ -153,7 +152,7 @@ that [lme4](){:.rlib} previously used by default.
 ~~~r
 fit <- lmer(
   log(WAGP) ~ (WKHP | SCHL),
-  data = person, 
+  data = pums, 
   control = lmerControl(optimizer = "bobyqa"))
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
@@ -170,7 +169,7 @@ fit <- lmer(
 ~~~
 Linear mixed model fit by REML ['lmerMod']
 Formula: log(WAGP) ~ (WKHP | SCHL)
-   Data: person
+   Data: pums
 Control: lmerControl(optimizer = "bobyqa")
 
 REML criterion at convergence: 11670.1
@@ -196,13 +195,13 @@ Fixed effects:
 ===
 
 The `predict` function extracts model predictions from a fitted model object
-(i.e. the output of `lm`, `glm`, `lmer`, and `gmler`), providing one easy
-way to visualize the effect of estimated coeficients.
+(i.e. the output of `lm`, `glm`, `lmer`, and `glmer`), providing one easy
+way to visualize the effect of estimated coefficients.
 
 
 
 ~~~r
-ggplot(person,
+ggplot(pums,
   aes(x = WKHP, y = log(WAGP), color = SCHL)) +
   geom_point() +
   geom_line(aes(y = predict(fit))) +

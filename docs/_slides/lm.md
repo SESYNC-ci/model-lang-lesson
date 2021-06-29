@@ -52,7 +52,7 @@ are many orders of magnitude larger than the mean.
 ~~~r
 fit <- lm(
   log(WAGP) ~ SCHL,
-  person)
+  pums)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
@@ -68,7 +68,7 @@ fit <- lm(
 ~~~
 
 Call:
-lm(formula = log(WAGP) ~ SCHL, data = person)
+lm(formula = log(WAGP) ~ SCHL, data = pums)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
@@ -104,7 +104,7 @@ and numbers.
 ~~~r
 fit <- lm(
   log(WAGP) ~ AGEP,
-  person)
+  pums)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
@@ -120,7 +120,7 @@ fit <- lm(
 ~~~
 
 Call:
-lm(formula = log(WAGP) ~ AGEP, data = person)
+lm(formula = log(WAGP) ~ AGEP, data = pums)
 
 Residuals:
     Min      1Q  Median      3Q     Max 

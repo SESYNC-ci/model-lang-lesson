@@ -13,8 +13,8 @@ to verify the coefficients indicate a downward quadratic relationship.
 
 Controlling for a person's educational attainment, fit a linear model that
 addresses the question of wage disparity between men and women in the U.S.
-workforce. What other predictor from the `person` data frame would increases the
-goodness-of-fit of the "control" model, before SEX is considered.
+workforce. What other predictor from the `pums` data frame would increase the
+goodness-of-fit of the "control" model, before SEX is considered?
 
 ### Exercise 3
 
@@ -34,16 +34,16 @@ fixed effect of sex and a random effect of educational attainment.
 ```{r, title = "Solution 1"}
 fit <- lm(
   WKHP ~ AGEP + I(AGEP^2),
-  person)
+  pums)
 
-ggplot(person,
+ggplot(pums,
   aes(x = AGEP, y = WKHP)) +
   geom_point(shape = 'o') +
   geom_line(aes(y = predict(fit)))
 ```
 
 ```{r, title = "Solution 2"}
-fit <- lm(WAGP ~ SCHL, person)
+fit <- lm(WAGP ~ SCHL, pums)
 summary(fit)
 ```
 
@@ -64,7 +64,7 @@ summary(update(fit, WAGP ~ SCHL + WKHP))
 ```
 
 ```{r, title = "Solution 3"}
-df <- person
+df <- pums
 levels(df$SCHL) <- c(0, 0, 0, 0, 1, 1)
 fit <- glmer(
   SCHL ~ (1 | OCCP) + AGEP,

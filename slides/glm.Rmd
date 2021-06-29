@@ -34,7 +34,7 @@ The previous model fit with `lm` is (almost) identical to a model fit using
 ```{r, handout = 0}
 fit <- glm(log(WAGP) ~ SCHL,
     family = gaussian,
-    data = person)
+    data = pums)
 ```
 
 ===
@@ -65,7 +65,7 @@ logistic regression.
 ```{r, handout = 0}
 fit <- glm(SEX ~ WAGP,
   family = binomial,
-  data = person)
+  data = pums)
 ```
 
 ===

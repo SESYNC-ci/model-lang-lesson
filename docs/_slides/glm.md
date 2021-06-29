@@ -36,7 +36,7 @@ The previous model fit with `lm` is (almost) identical to a model fit using
 ~~~r
 fit <- glm(log(WAGP) ~ SCHL,
     family = gaussian,
-    data = person)
+    data = pums)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
@@ -54,7 +54,7 @@ fit <- glm(log(WAGP) ~ SCHL,
 ~~~
 
 Call:
-glm(formula = log(WAGP) ~ SCHL, family = gaussian, data = person)
+glm(formula = log(WAGP) ~ SCHL, family = gaussian, data = pums)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
@@ -85,7 +85,7 @@ Number of Fisher Scoring iterations: 2
 ===
 
 Question
-: Should the coeficient estimates between this Gaussian `glm()` and the previous
+: Should the coefficient estimates between this Gaussian `glm()` and the previous
 `lm()` be different?
 
 Answer
@@ -106,7 +106,7 @@ logistic regression.
 ~~~r
 fit <- glm(SEX ~ WAGP,
   family = binomial,
-  data = person)
+  data = pums)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
@@ -134,7 +134,7 @@ prediction towards men.
 ~~~
 
 Call:
-glm(formula = SEX ~ WAGP, family = binomial, data = person)
+glm(formula = SEX ~ WAGP, family = binomial, data = pums)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  

@@ -3,15 +3,23 @@
 
 ## Lesson Objectives
 
-- Learn several functions and packages for statistical modeling
-- Understand the "formula" part of model specification
-- Introduce increasingly complex, still "linear", regression models
+- Learn functions and packages for statistical modeling in R
+- Understand "formulas" of model specification
+- Introduce simple and complex "linear", regression models
+
+===
+
+## Specific Achievements
+
+- Write a simple linear formula using `lm` function.
+- Write a linear formula with a non-gaussian family using the `glm` function.
+- Add a "random effect" into a linear formula using the a `lmer` package
 
 ===
 
 ## Lesson Non-objectives
 
-*Pay no attention to these very important topics.*
+This lesson does *not* cover the following topics related to statistical modeling. These should be considered carefully when analyzing data.
 {:.notes}
 
 - Experimental/sampling design
@@ -21,18 +29,10 @@
 
 ===
 
-## Specific Achievements
-
-- Write a `lm` formula with an interaction term
-- Use a non-gaussian family in the `glm` function
-- Add a "random effect" to a `lmer` formula
-
-===
-
 ## Dataset
 
-The dataset you will plot is an example of Public Use Microdata Sample (PUMS)
-produced by the US Census Beaurea.
+In this lesson, you will use Public Use Microdata Sample (PUMS) data collected by the US Census Bureau. This CSV file contains individuals’ anonymized responses to the 5 Year American Community Survey (ACS) completed in 2017. There are over a hundred variables giving individual level data on household members income, education, employment, ethnicity, and much more. The [technical documentation] for the PUMS data includes a data dictionary, explaining the codes used for the variable, such as education attainment, and other information about the dataset.
+{:.notes}
 
 
 
@@ -40,7 +40,7 @@ produced by the US Census Beaurea.
 library(readr)
 library(dplyr)
 
-person <- read_csv(
+pums <- read_csv(
   file = 'data/census_pums/sample.csv',
   col_types = cols_only(
     AGEP = 'i',  # Age
@@ -53,22 +53,23 @@ person <- read_csv(
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
-This CSV file contains individuals’ anonymized responses to the 5 Year American
-Community Survey (ACS) completed in 2017. There are over a hundred variables
-giving individual level data on household members income, education, employment,
-ethnicity, and much more. The [technical documentation] provided the data
-definitions quoted above in comments.
+The [readr](){:.rlib} package gives additional flexibility and speed over the
+base R `read.csv` function. The CSV contains 4 million rows, equating to several
+gigabytes, so a sample suffices while developing ideas for visualization.
+{:.notes}
+
+The [dplyr](){:.rlib} package is also used in this lesson to manipulate the data frames.
 {:.notes}
 
 ===
 
 Collapse the education attainment levels for this lesson, and remove non
-wage-earners as well as the "top coded" individuals whose income is annonymized.
+wage-earners as well as the "top coded" individuals whose income is anonymized.
 
 
 
 ~~~r
-person <- within(person, {
+pums <- within(pums, {
   SCHL <- factor(SCHL)
   levels(SCHL) <- list(
     'Incomplete' = c(1:15),

@@ -11,7 +11,7 @@ standing for linear model.
 ~~~r
 fit <- lm(
   formula = WAGP ~ SCHL,
-  data = person)
+  data = pums)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
@@ -33,7 +33,7 @@ models, typically with just one or two "fixed effects".
 ~~~r
 > library(ggplot2)
 > 
-> ggplot(person,
+> ggplot(pums,
 +   aes(x = SCHL, y = WAGP)) +
 +   geom_boxplot()
 ~~~
