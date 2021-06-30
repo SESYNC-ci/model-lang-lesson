@@ -34,6 +34,8 @@ This lesson does *not* cover the following topics related to statistical modelin
 In this lesson, you will use Public Use Microdata Sample (PUMS) data collected by the US Census Bureau. This CSV file contains individuals’ anonymized responses to the 5 Year American Community Survey (ACS) completed in 2017. There are over a hundred variables giving individual level data on household members income, education, employment, ethnicity, and much more. The [technical documentation] for the PUMS data includes a data dictionary, explaining the codes used for the variable, such as education attainment, and other information about the dataset.
 {:.notes}
 
+First, load the data file, including only a small subset of the variables from the full ACS survey. 
+
 ```{r, handout = 0, message = FALSE}
 library(readr)
 library(dplyr)
@@ -59,8 +61,7 @@ The [dplyr](){:.rlib} package is also used in this lesson to manipulate the data
 
 ===
 
-Collapse the education attainment levels for this lesson, and remove non
-wage-earners as well as the "top coded" individuals whose income is anonymized.
+In the ACS data, educational attainment, `SCHL`, is coded numerically from 1-24. We can collapse the education attainment levels for this lesson into factors. We can also remove all non wage-earners (where wages is equal to 0) and the "top coded" individuals, representing a group of very high earners, using the `filter` function from the [dplyr](){:.rlib} package. 
 
 ```{r, handout = 0}
 pums <- within(pums, {

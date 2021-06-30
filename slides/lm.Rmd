@@ -1,36 +1,36 @@
 ---
 ---
 
-## Linear Models
+## Linear Regression
 
-The formula requires a response variable left of a `~` and any number of
-predictors to its right.
+We will use a linear regression to determine the relationship between educational attainment (`SCHL`) and wages (`WAGP`). The basic function for fitting a regression in R is the `lm()` function,
+standing for linear model.
 
-| Formula           | Description |
-|-------------------|-------------|
-| `y ~ a`           | constant and one predictor |
-| `y ~ a + b`       | constant and two predictors |
-| `y ~ a + b + a:b` | constant and two predictors and their interaction |
+```{r, handout = 0}
+fit <- lm(
+  formula = WAGP ~ SCHL,
+  data = pums)
+```
 
-===
+The `lm()` function takes a formula argument and a data argument, and computes
+the best fitting linear model (i.e. determines coefficients that [minimize the
+sum of squared residuals].
+{:.notes}
 
-The constant (i.e. intercept) can be explicitly removed, although this is rarely
-needed in practice. Assume an intercept is fitted unless its absence is explicitly noted.
-
-| Formula      | Description |
-|--------------|-------------|
-| `y ~ -1 + a` | one predictor with no constant |
+[minimize the sum of squared residuals]: https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)
 
 ===
 
-More or higher-order interactions are included with a shorthand that is sort of
-consistent with the expression's algebraic meaning.
+Data visualizations can help confirm intuition, but only with very simple
+models, typically with just one or two "fixed effects".
 
-| Formula                | Description |
-|------------------------|-------------|
-| `y ~ a*b`              | all combinations of two variables  |
-| `y ~ (a + b)^2`        | equivalent to `y ~ a*b` |
-| `y ~ (a + b + ... )^n` | all combinations of all predictors up to order `n` |
+```{r}
+library(ggplot2)
+
+ggplot(pums,
+  aes(x = SCHL, y = WAGP)) +
+  geom_boxplot()
+```
 
 ===
 
