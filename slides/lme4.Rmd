@@ -4,7 +4,7 @@
 ## Linear Mixed Models
 
 The [lme4](){:.rlib} package expands the formula "mini-language" to allow
-descriptions of "random effects".
+descriptions of "random effects" into the linear model. These are called mixed models because they contain both fixed and random effects. 
 
 - normal predictors are "fixed effects"
 - `(...|...)` expressions describe "random effects"

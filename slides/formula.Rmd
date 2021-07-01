@@ -45,6 +45,7 @@ kinds of expressions, while the [lme4](){:.rlib} package has its own
 
 The formula notation for linear models is a response variable left of a `~` and any number of predictors to its right. By default, the intercept, or constant, is fit in the model, so is not included in the formula. 
 
+===
 
 | Formula           | Description |
 |-------------------|-------------|

@@ -3,7 +3,7 @@
 
 ## Linear Regression
 
-We will use a linear regression to determine the relationship between educational attainment (`SCHL`) and wages (`WAGP`). The basic function for fitting a regression in R is the `lm()` function,
+With the US Census data, we will use a linear regression to determine the relationship between educational attainment (`SCHL`) and wages (`WAGP`). The basic function for fitting a regression in R is the `lm()` function,
 standing for linear model.
 
 ```{r, handout = 0}
@@ -34,7 +34,7 @@ ggplot(pums,
 
 ===
 
-Data transformation functions are allowed within the formula expression.
+Within the formula expressions, data transformation functions can also be used. 
 
 | Formula      | Description |
 |--------------|-------------|
@@ -45,7 +45,7 @@ Data transformation functions are allowed within the formula expression.
 ===
 
 The `WAGP` variable is always positive and includes some values that
-are many orders of magnitude larger than the mean.
+are many orders of magnitude larger than the mean. Therefore, we can log transform the wages in the model.
 
 ```{r lm_weight, handout = 0}
 fit <- lm(
@@ -59,10 +59,13 @@ summary(fit)
 
 ===
 
-## Metadata Matters
+## Predictor class
 
-For the predictors in a linear model, there is a big difference between factors
-and numbers.
+For the predictors in a linear model, there is a big difference between factors and numbers.
+
+===
+
+Compare the model above which fit the wages and level of education (a factor) with one that uses age (a numerical category)
 
 ```{r, handout = 0}
 fit <- lm(
@@ -74,8 +77,5 @@ fit <- lm(
 summary(fit)
 ```
 
-The difference between 1 and 5 model degrees of freedom between the last two
-summaries---with one fixed effect each---arises because `SCHL` is a a factor
-while `AGEP` is numeric. In the first case you get multiple intercepts,
-while in the second case you get a slope.
+In the model with `SCHL`, multiple intercepts are fit. However, in the model with `AGEP`, a slope is fit.
 {:.notes}

@@ -3,10 +3,8 @@
 
 ## Generalized Linear Models
 
-The `lm` function treats the response variable as numeric---the `glm` function
-lifts this restriction and others. Not through the `formula` syntax, which is
-the same for calls to `lm`  and `glm`, but through addition of the `family`
-argument.
+Generalized linear models can be fit in R using the `glm` function, which is a part of base R. The `formula` syntax in the `lm` and `glm` functions are the same, but an addional argument, `family`, is used in `glm` to specfiies the error distribution. In `lm` the distribution is assumed to be a normal or gaussian. Additionally, the `lm` function treats the response variable as numeric---the `glm` function
+lifts this restriction and others. 
 
 ===
 
@@ -60,7 +58,7 @@ difference in the optimum.
 ### Logistic Regression
 
 Calling `glm` with `family = binomial` using the default "logit" link performs
-logistic regression.
+logistic regression. We can use this to model the relationship between sex and wages as an example, although this is not a meaningful statistical test.
 
 ```{r, handout = 0}
 fit <- glm(SEX ~ WAGP,
@@ -70,8 +68,8 @@ fit <- glm(SEX ~ WAGP,
 
 ===
 
-Interpretting the coefficients in the summary is non-obvious, but always works
-the same way. In the `person` table, where men are coded as `1`, the `levels`
+Interpretting the coefficients in the summary is not obvious, but always works
+the same way. In the `pums` table, where men are coded as `1`, the `levels`
 function shows that `2`, or women, are the first level. When using the binomial
 family, the first level of the factor is consider 0 or "failure", and all remaining
 levels (typically just one) are considered 1 or "success". The predicted value, the linear combination of variables and coeficients, is the log odds of "success".
