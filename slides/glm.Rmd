@@ -3,16 +3,14 @@
 
 ## Generalized Linear Models
 
-Generalized linear models can be fit in R using the `glm` function, which is a part of base R. The `formula` syntax in the `lm` and `glm` functions are the same, but an addional argument, `family`, is used in `glm` to specfiies the error distribution. In `lm` the distribution is assumed to be a normal or gaussian. Additionally, the `lm` function treats the response variable as numeric---the `glm` function
-lifts this restriction and others. 
+In linear models, like those fit with `lm`, the distribution of the response variable is assumed to be a normal or gaussian. However, in many cases this assumption is not appropriate. *Generalized* linear models allow for other distributions for the response variable, such as binomial or exponential distributions. In generalized linear models, a *link* function is used to transform the response variable. This causes the response variable to follow a more linear relationship with the predictor variables. 
 
 ===
 
-### GLM Families
+Generalized linear models can be fit in R using the `glm` function, which is a part of base R. The `formula` syntax in the `lm` and `glm` functions are the same, but an additional argument, `family`, is used in `glm` to specify the distribution. 
 
 The `family` argument determines the family of probability distributions in
-which the response variable belongs. A key difference between families is the
-data type and range.
+which the response variable belongs.
 
 ===
 
@@ -23,6 +21,8 @@ data type and range.
 | `poisson`          | `integer` | *log*, identity, sqrt                  |
 | `Gamma`            | `double`  | *inverse*, identity, log               |
 | `inverse.gaussian` | `double`  | *"1/mu^2"*, inverse, identity, log     |
+
+
 
 ===
 
@@ -68,11 +68,11 @@ fit <- glm(SEX ~ WAGP,
 
 ===
 
-Interpretting the coefficients in the summary is not obvious, but always works
+Interpreting the coefficients in the summary is not obvious, but always works
 the same way. In the `pums` table, where men are coded as `1`, the `levels`
 function shows that `2`, or women, are the first level. When using the binomial
 family, the first level of the factor is consider 0 or "failure", and all remaining
-levels (typically just one) are considered 1 or "success". The predicted value, the linear combination of variables and coeficients, is the log odds of "success".
+levels (typically just one) are considered 1 or "success". The predicted value, the linear combination of variables and coefficients, is the log odds of "success".
 {:.notes}
 
 The positive coefficient on `WAGP` implies that a higher wage tilts the
@@ -86,31 +86,13 @@ summary(fit)
 
 The always popular $$R^2$$ indicator for goodness-of-fit is absent from the
 summary of a `glm` result, as is the defult F-Test of the model's significance.
-
 The developers of `glm`, detecting an increase in user sophistication, are
 leaving more of the model assessment up to you. The "null deviance" and
-"residual deviance" provide most of the information we need. The `?anova.glm`
-function allows us to apply the F-test on the deviance change, although there is
-a better alternative.
+"residual deviance" provide most of the information we need. To test the fit of a generalized linear model, it is best to compare the deviance of model to the "null model," which is the model without predictor variables. Therefore, the null model only fits the intercept. 
 {:.notes}
+
+Use a Chi-squared test to see if the deviance in your model is lower than the null model.
 
 ```{r, handout = 0}
 anova(fit, update(fit, SEX ~ 1), test = 'Chisq')
 ```
-
-===
-
-### Observation Weights
-
-Both the `lm()` and `glm()` function allow a vector of weights the same length
-as the response. Weights can be necessary for logistic regression, depending on
-the format of the data. The `binomial` family `glm()` works with three different
-response variable formats.
-
-1. `factor` with only, or coerced to, two levels (binary)
-1. `matrix` with two columns for the count of "successes" and "failures"
-1. `numeric` proprtion of "successes" out of `weights` trials
-
-Depending on your model, these three formats are not necesarilly
-interchangeable.
-{:.notes}

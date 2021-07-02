@@ -18,7 +18,10 @@ consume a well-defined number of degrees of freedom. Variables added within
 ===
 
 Models with random effects should be understood as specifying multiple,
-overlapping probability statements about the observations.
+overlapping probability statements about the observations. 
+
+For example, we can to fit the response variable log(WAGP) with the predictors of occupation (`OCCP`) and education (`SCHL`), where `OCCP` is a random effect and `SCHL` is a fixed effect. As assumed by linear models, the response variable, log(WAGP), is normally distributed, with a mean of \mu_i and standard deviation of \sigma_0^2. In addition, the random effect, `OCCP` varies and has a normal distribution, with mean of 0 and standard deviation of \Sigma_1. The fixed effect, `SCHL` does not vary, and thus is a *fixed*.
+{..notes}
 
 $$
 \begin{align}
@@ -28,12 +31,14 @@ $$
 &\end{align}
 $$
 
+
 ===
 
-The "random intercepts" and "random slopes" models are the two most common
-extensions to a formula with one variable.
+Mixed models can be fit with "random intercepts" and "random slopes". With a random intercept, each level within the random effect can have a different intercept. With a random slope, each level can have a different slope. 
 
-| Formula                  | Description |
+In `lme4` random effects are shown in the formula inside parentheses, with variables to the right of a "|" to fit random intercept, and to the left to fit a random slope. 
+
+| Formula                  | Description of random effect |
 |--------------------------|-------------|
 | `y ~ (1 | b) + a`        | random intercept for each level in `b` |
 | `y ~ a + (a | b)`        | random intercept and slope w.r.t. `a` for each level in `b` |
@@ -88,8 +93,8 @@ fit <- lmer(
 ===
 
 The warning that the procedure `failed to converge` is worth paying attention
-to. In this case, we can proceed by switching to the slower numerical optimizer
-that [lme4](){:.rlib} previously used by default.
+to. One way to fix this is to change the numerical optimizer used for model fitting
+that [lme4](){:.rlib} is used by default. In this example, we change the optimizer to a "BOBYQA" optimizer, which is slower than the default. 
 
 ```{r, handout = 0}
 fit <- lmer(
@@ -106,7 +111,7 @@ summary(fit)
 
 The `predict` function extracts model predictions from a fitted model object
 (i.e. the output of `lm`, `glm`, `lmer`, and `glmer`), providing one easy
-way to visualize the effect of estimated coefficients.
+way to visualize the effect of estimated coefficients. We can plot the extracted coefficients using `ggplot`.
 
 ```{r, handout = 0}
 ggplot(pums,
@@ -121,4 +126,4 @@ ggplot(pums,
 ### Generalized Mixed Models
 
 The `glmer` function adds upon `lmer` the option to specify the same group of
-exponential family distributions for the residuals available to `glm`.
+exponential family distributions as `glm` adds to `lm`. The same `family` argument is used in `glmer` to specify the distribution. 
