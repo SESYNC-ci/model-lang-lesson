@@ -58,32 +58,60 @@ difference in the optimum.
 ### Logistic Regression
 
 Calling `glm` with `family = binomial` using the default "logit" link performs
-logistic regression. We can use this to model the relationship between sex and wages as an example, although this is not a meaningful statistical test.
+logistic regression. We can use this to model the relationship between if an individual has insurance through their employer (`HINDS1`) and wages (`WAGP`) as an example, although this is not a meaningful statistical test.
 
 ```{r, handout = 0}
-fit <- glm(SEX ~ WAGP,
+fit <- glm(HINS1 ~ WAGP,
   family = binomial,
   data = pums)
 ```
 
 ===
 
-Interpreting the coefficients in the summary is not obvious, but always works
-the same way. In the `pums` table, where men are coded as `1`, the `levels`
-function shows that `2`, or women, are the first level. When using the binomial
-family, the first level of the factor is consider 0 or "failure", and all remaining
-levels (typically just one) are considered 1 or "success". The predicted value, the linear combination of variables and coefficients, is the log odds of "success".
-{:.notes}
+Interpreting the coefficients in the summary of the model is not obvious, but always works
+the same way. Looking at the model, you can see that the slope for `WAGP` is significant. 
 
-The positive coefficient on `WAGP` implies that a higher wage tilts the
-prediction towards men.
-
-```{r}
+```{r, handout = 0}
 summary(fit)
 ```
 
 ===
 
+To determine what this means, you have to look at the levels in the `HINS1` factor. 
+
+```{r, handout = 0}
+levels(pums$HINS1)
+```
+
+In order, the levels are "1" and "2", which in the US Census data corresponds to yes and no, respectively for insurance through an employer. For a binomial distribution, the first level of the factor is considered 0 or "failure" and the other levels are considered 1 or "success." The predicted value, the linear combination of variables and coefficients, is the log odds of "success". So in this example, `HINS1` of 1 (has insurance through employer) is coded as a "0" in the model and `HINS1` level of 2 (does not have insurance through employer) is coded as a "1". 
+{..notes}
+
+Because the slope of wages in the model is negative, this means that a lower wages corresponds to no insurance through employer. 
+
+===
+
+To make the analysis more intuitive, you can change the order of the levels in the factor so that the level "2" is coded as 0 and the level "1" is coded as 1 or success. 
+
+```{r, handout = 0}
+pums$HINS1 <- factor(pums$HINS1, levels = c("2", "1"))
+levels(pums$HINS1)
+```
+
+====
+
+If you rerun the model, you can see that the estimates remain the same, but the slope of `WAGP` is not positive, not negative. 
+
+```{r, handout = 0}
+fit <- glm(HINS1 ~ WAGP,
+  family = binomial,
+  data = pums)
+```
+
+```{r, handout = 0}
+summary(fit)
+```
+
+===
 The always popular $$R^2$$ indicator for goodness-of-fit is absent from the
 summary of a `glm` result, as is the defult F-Test of the model's significance.
 The developers of `glm`, detecting an increase in user sophistication, are

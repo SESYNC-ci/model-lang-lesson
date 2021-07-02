@@ -48,6 +48,7 @@ pums <- read_csv(
     SCHL = 'i',  # Educational attainment
     SEX = 'f',   # Sex
     OCCP = 'f',  # Occupation recode based on 2010 OCC codes
+    HINS1 = 'f', # has insurance through employer
     WKHP = 'i')) # Usual hours worked per week past 12 months
 ```
 
