@@ -20,13 +20,13 @@ consume a well-defined number of degrees of freedom. Variables added within
 Models with random effects should be understood as specifying multiple,
 overlapping probability statements about the observations. 
 
-For example, we can to fit the response variable log(WAGP) with the predictors of occupation (`OCCP`) and education (`SCHL`), where `OCCP` is a random effect and `SCHL` is a fixed effect. As assumed by linear models, the response variable, log(WAGP), is normally distributed, with a mean of \mu_i and standard deviation of \sigma_0^2. In addition, the random effect, `OCCP` varies and has a normal distribution, with mean of 0 and standard deviation of \Sigma_1. The fixed effect, `SCHL` does not vary, and thus is a *fixed*.
-{..notes}
+For example, we can to fit the response variable log(WAGP) with the predictors of marital status (`MAR`) and education (`SCHL`), where `MAR` is a random effect and `SCHL` is a fixed effect. As assumed by linear models, the response variable, log(WAGP), is normally distributed, with a mean of \mu_i and standard deviation of \sigma_0^2. In addition, the random effect, `MAR` varies and has a normal distribution, with mean of 0 and standard deviation of \Sigma_1. The fixed effect, `SCHL` does not vary, and thus is a *fixed*.
+{:.notes}
 
 $$
 \begin{align}
 &\log(WAGP_i) \sim Normal(\mu_i, \sigma_0^2) \\
-&\mu_i = \beta_0 + \boldsymbol{\beta_1}[OCCP_i] + \beta_2 [SCHL_i] \\
+&\mu_i = \beta_0 + \boldsymbol{\beta_1}[MAR] + \beta_2 [SCHL_i] \\
 &\boldsymbol{\beta_1} \sim Normal(0, \boldsymbol{\Sigma_1}) \\
 &\end{align}
 $$
@@ -54,7 +54,7 @@ the `lm` formula syntax.
 ```{r, message = FALSE, handout = 0}
 library(lme4)
 fit <- lmer(
-  log(WAGP) ~ (1|OCCP) + SCHL,
+  log(WAGP) ~ (1|MAR) + SCHL,
   data = pums)
 ```
 
@@ -64,16 +64,34 @@ fit <- lmer(
 summary(fit)
 ```
 
-The familiar assessment of model residuals is absent from the summary due to the
-lack of a widely accepted measure of null and residual deviance. The notions of
-model saturation, degrees of freedom, and independence of observations have all
-crossed onto thin ice.
-{:.notes}
-
 In a `lm` or `glm` fit, each response is conditionally independent, given it's
 predictors and the model coefficients. Each observation corresponds to it's own
-probability statement. In a model with random effects, each response is no
-longer conditionally independent, given it's predictors and model coefficients.
+probability statement. Mixed models allow you to specify random effects,  assuming that the response variable is *not* independent given the predictors and model coefficients. In short, mixed models account for the variation due to the random effects and then estimate the coefficients for the fixed effects. 
+{:.notes}
+
+Mixed models are more complicated to interpret. The familiar assessment of model residuals is absent from the summary due to the
+lack of a widely accepted measure of null and residual deviance. One way to evaluate mixed models is to compare models with different combinations of fixed effects and to the null model. 
+{:.notes}
+
+In this example, we can create a null model where we include the random effect of marital status but take out the fixed effect of education. 
+
+```{r,  handout = 0}
+null.model <- lmer(
+  log(WAGP) ~ (1|MAR),
+  data = pums)
+```
+
+===
+
+To compare the fit model to the null model, use the `anova` function. 
+
+```{r,  handout = 0}
+anova(null.model, fit)
+```
+
+Based on a Chi-squared test, the fit model with education has a lower deviance than the null model, suggesting that education has an effect on wages. 
+
+Other factors, such as AIC, BIC, and log likelihood scores are also often used to compare and evaluate mixed models. 
 {:.notes}
 
 ===
@@ -120,6 +138,9 @@ ggplot(pums,
   geom_line(aes(y = predict(fit))) +
   labs(title = 'Random intercept and slope with lmer')
 ```
+
+As you can see, each level of education has its own intercept **and** slope for the best fit line. 
+{:.notes}
 
 ===
 
