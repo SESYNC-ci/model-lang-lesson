@@ -27,7 +27,7 @@ pums <- within(pums, {
     WAGP > 0,
     WAGP < max(WAGP, na.rm = TRUE))
 
-# Formula Notation
+# Linear regression
 
 fit <- lm(
   formula = ...,
@@ -39,13 +39,13 @@ ggplot(pums,
        aes(x = ..., y = ...)) +
   geom_...()
 
-fit <- lm(
+fit.schl <- lm(
   ...,
   data = pums)
 
 # Predictor class
 
-fit <- lm(
+fit.agep <- lm(
   ...,
   data = pums)
 

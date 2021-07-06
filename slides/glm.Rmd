@@ -59,7 +59,7 @@ difference in the optimum.
 ### Logistic Regression
 
 Calling `glm` with `family = binomial` using the default "logit" link performs
-logistic regression. We can use this to model the relationship between if an individual has insurance through their employer (`HINDS1`) and wages (`WAGP`) as an example, although this is not a meaningful statistical test.
+logistic regression. We can use this to model the relationship between if an individual has insurance through their employer (`HINDS1`) and wages (`WAGP`).
 
 ```{r, handout = 0}
 fit <- glm(HINS1 ~ WAGP,
@@ -118,6 +118,9 @@ summary(fit)
 
 The always popular $$R^2$$ indicator for goodness-of-fit is absent from the
 summary of a `glm` result, as is the default F-Test of the model's significance.
+
+===
+
 The developers of `glm`, detecting an increase in user sophistication, are
 leaving more of the model assessment up to you. The "null deviance" and
 "residual deviance" provide most of the information we need. To test the fit of a generalized linear model, it is best to compare the deviance of model to the "null model," which is the model without predictor variables. Therefore, the null model only fits the intercept. 
