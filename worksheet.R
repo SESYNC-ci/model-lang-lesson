@@ -3,26 +3,27 @@
 library(readr)
 library(dplyr)
 
-person <- read_csv(
-  file = ...,
+pums <- read_csv(
+  file = 'data/census_pums/sample.csv',
   col_types = cols_only(
     ... = 'i',  # Age
     ... = 'd',  # Wages or salary income past 12 months
     ... = 'i',  # Educational attainment
     ... = 'f',   # Sex
-    ... = 'f',  # Occupation recode based on 2010 OCC codes
+    ... = 'f', # Marital status
+    ... = 'f', # has insurance through employer
     ... = 'i')) # Usual hours worked per week past 12 months
 
-person <- within(person, {
+pums <- within(pums, {
   SCHL <- factor(SCHL)
-  levels(SCHL) <- list(
+  ...(SCHL) <- list(
     'Incomplete' = c(1:15),
-    'High School' = 16,
-    'College Credit' = 17:20,
+    'High School' = 16:17,
+    'College Credit' = 18:20,
     'Bachelor\'s' = 21,
     'Master\'s' = 22:23,
     'Doctorate' = 24)}) %>%
-  filter(
+  ...(
     WAGP > 0,
     WAGP < max(WAGP, na.rm = TRUE))
 
@@ -32,27 +33,46 @@ fit <- lm(
   formula = ...,
   data = ...)
 
+library(ggplot2)
+
+ggplot(pums,
+       aes(x = ..., y = ...)) +
+  geom_...()
+
 fit <- lm(
   ...,
-  person)
+  data = pums)
 
-# Metadata matters
+# Predictor class
 
 fit <- lm(
   ...,
-  person)
+  data = pums)
+
+summary(...)
 
 # GLM families
 
 fit <- ...(...,
   ...,
-  person)
+  data = pums)
+
+summary(fit)
 
 # Logistic Regression
 
 fit <- glm(...,
-  ...,
-  person)
+  family = ...,
+  data = pums)
+
+...(pums$HINS1)
+
+pums$... <- factor(pums$HINS1, ... = c("2", "1"))
+levels(pums$HINS1)
+
+fit <- glm(...,
+           family = ...,
+           data = pums)
 
 ...(fit, update(fit, ...), test = 'Chisq')
 
@@ -61,21 +81,27 @@ fit <- glm(...,
 library(...)
 fit <- ...(
   ...,
-  data = person)
+  data = pums)
+
+... <- lmer(
+  ...,
+  data = pums)
+
+...(null.model, fit)
 
 # Random Slope
 
 fit <- lmer(
-  ...
-  data = person)
+  ...,
+  data = pums)
 
 fit <- lmer(
   log(WAGP) ~ (WKHP | SCHL),
-  data = person,
-  control = ...)
+  data = pums,
+  ... = lmerControl(... = "bobyqa"))
 
 ggplot(person,
-  aes(x = WKHP, y = log(WAGP), color = SCHL)) +
+  aes(x = ..., y = ..., color = ...)) +
   geom_point() +
   geom_line(...) +
   labs(title = 'Random intercept and slope with lmer')
