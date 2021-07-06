@@ -3,7 +3,10 @@
 
 ## Generalized Linear Models
 
-In linear models, like those fit with `lm`, the distribution of the response variable is assumed to be a normal or gaussian. However, in many cases this assumption is not appropriate. *Generalized* linear models allow for other distributions for the response variable, such as binomial or exponential distributions. In generalized linear models, a *link* function is used to transform the response variable. This causes the response variable to follow a more linear relationship with the predictor variables. 
+In linear models, like those fit with `lm`, the distribution of the response variable is assumed to be a normal or gaussian. However, in many cases this assumption is not appropriate. 
+{:.notes}
+
+*Generalized* linear models allow for other distributions for the response variable, such as binomial or exponential distributions. In generalized linear models, a *link* function is used to transform the response variable. This causes the response variable to follow a more linear relationship with the predictor variables. 
 
 ===
 
@@ -34,8 +37,6 @@ fit <- glm(log(WAGP) ~ SCHL,
     family = gaussian,
     data = pums)
 ```
-
-===
 
 ```{r}
 summary(fit)
@@ -84,7 +85,9 @@ levels(pums$HINS1)
 ```
 
 In order, the levels are "1" and "2", which in the US Census data corresponds to yes and no, respectively for insurance through an employer. For a binomial distribution, the first level of the factor is considered 0 or "failure" and the other levels are considered 1 or "success." The predicted value, the linear combination of variables and coefficients, is the log odds of "success". So in this example, `HINS1` of 1 (has insurance through employer) is coded as a "0" in the model and `HINS1` level of 2 (does not have insurance through employer) is coded as a "1". 
-{..notes}
+{:.notes}
+
+===
 
 Because the slope of wages in the model is negative, this means that a lower wages corresponds to no insurance through employer. 
 
@@ -97,7 +100,7 @@ pums$HINS1 <- factor(pums$HINS1, levels = c("2", "1"))
 levels(pums$HINS1)
 ```
 
-====
+===
 
 If you rerun the model, you can see that the estimates remain the same, but the slope of `WAGP` is not positive, not negative. 
 
@@ -107,13 +110,14 @@ fit <- glm(HINS1 ~ WAGP,
   data = pums)
 ```
 
-```{r, handout = 0}
+```{r}
 summary(fit)
 ```
 
 ===
+
 The always popular $$R^2$$ indicator for goodness-of-fit is absent from the
-summary of a `glm` result, as is the defult F-Test of the model's significance.
+summary of a `glm` result, as is the default F-Test of the model's significance.
 The developers of `glm`, detecting an increase in user sophistication, are
 leaving more of the model assessment up to you. The "null deviance" and
 "residual deviance" provide most of the information we need. To test the fit of a generalized linear model, it is best to compare the deviance of model to the "null model," which is the model without predictor variables. Therefore, the null model only fits the intercept. 

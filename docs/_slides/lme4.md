@@ -4,7 +4,7 @@
 ## Linear Mixed Models
 
 The [lme4](){:.rlib} package expands the formula "mini-language" to allow
-descriptions of "random effects".
+descriptions of "random effects" into the linear model. These are called mixed models because they contain both fixed and random effects. 
 
 - normal predictors are "fixed effects"
 - `(...|...)` expressions describe "random effects"
@@ -18,22 +18,29 @@ consume a well-defined number of degrees of freedom. Variables added within
 ===
 
 Models with random effects should be understood as specifying multiple,
-overlapping probability statements about the observations.
+overlapping probability statements about the observations. 
+
+For example, we can to fit the response variable log(WAGP) with the predictors of marital status (`MAR`) and education (`SCHL`), where `MAR` is a random effect and `SCHL` is a fixed effect. As assumed by linear models, the response variable, log(WAGP), is normally distributed, with a mean of \mu_i and standard deviation of \sigma_0^2. In addition, the random effect, `MAR` varies and has a normal distribution, with mean of 0 and standard deviation of \Sigma_1. The fixed effect, `SCHL` does not vary, and thus is a *fixed*.
+{:.notes}
 
 $$
 \begin{align}
 &\log(WAGP_i) \sim Normal(\mu_i, \sigma_0^2) \\
-&\mu_i = \beta_0 + \boldsymbol{\beta_1}[OCCP_i] + \beta_2 \log(SCHL_i) \\
+&\mu_i = \beta_0 + \boldsymbol{\beta_1}[MAR] + \beta_2 [SCHL_i] \\
 &\boldsymbol{\beta_1} \sim Normal(0, \boldsymbol{\Sigma_1}) \\
 &\end{align}
 $$
 
+
 ===
 
-The "random intercepts" and "random slopes" models are the two most common
-extensions to a formula with one variable.
+Mixed models can be fit with "random intercepts" and "random slopes". With a random intercept, each level within the random effect can have a different intercept. With a random slope, each level can have a different slope. 
 
-| Formula                  | Description |
+In `lme4` random effects are shown in the formula inside parentheses, with variables to the right of a "\|" to fit random intercept, and to the left to fit a random slope. 
+
+===
+
+| Formula                  | Description of random effect |
 |--------------------------|-------------|
 | `y ~ (1 | b) + a`        | random intercept for each level in `b` |
 | `y ~ a + (a | b)`        | random intercept and slope w.r.t. `a` for each level in `b` |
@@ -51,13 +58,11 @@ the `lm` formula syntax.
 ~~~r
 library(lme4)
 fit <- lmer(
-  log(WAGP) ~ (1|OCCP) + SCHL,
+  log(WAGP) ~ (1|MAR) + SCHL,
   data = pums)
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
-
-===
 
 
 
@@ -69,51 +74,101 @@ fit <- lmer(
 
 ~~~
 Linear mixed model fit by REML ['lmerMod']
-Formula: log(WAGP) ~ (1 | OCCP) + SCHL
+Formula: log(WAGP) ~ (1 | MAR) + SCHL
    Data: pums
 
-REML criterion at convergence: 12766.4
+REML criterion at convergence: 12995.7
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
--8.6724 -0.3421  0.2034  0.6046  2.8378 
+-7.7980 -0.3802  0.1780  0.6465  2.7135 
 
 Random effects:
  Groups   Name        Variance Std.Dev.
- OCCP     (Intercept) 0.3945   0.6281  
- Residual             1.0598   1.0295  
-Number of obs: 4246, groups:  OCCP, 380
+ MAR      (Intercept) 0.1491   0.3862  
+ Residual             1.2398   1.1134  
+Number of obs: 4246, groups:  MAR, 5
 
 Fixed effects:
                    Estimate Std. Error t value
-(Intercept)         9.62243    0.06646 144.777
-SCHLHigh School     0.34069    0.06304   5.404
-SCHLCollege Credit  0.29188    0.06005   4.861
-SCHLBachelor's      0.65614    0.07082   9.265
-SCHLMaster's        0.88218    0.08742  10.092
-SCHLDoctorate       1.04715    0.20739   5.049
+(Intercept)         9.28460    0.18264  50.835
+SCHLHigh School     0.40600    0.06410   6.334
+SCHLCollege Credit  0.49035    0.06222   7.881
+SCHLBachelor's      0.99794    0.06864  14.539
+SCHLMaster's        1.10705    0.08150  13.584
+SCHLDoctorate       1.26125    0.20772   6.072
 
 Correlation of Fixed Effects:
             (Intr) SCHLHS SCHLCC SCHLB' SCHLM'
-SCHLHghSchl -0.676                            
-SCHLCllgCrd -0.736  0.752                     
-SCHLBchlr's -0.677  0.653  0.723              
-SCHLMastr's -0.568  0.528  0.586  0.602       
-SCHLDoctort -0.232  0.218  0.242  0.242  0.247
+SCHLHghSchl -0.254                            
+SCHLCllgCrd -0.259  0.763                     
+SCHLBchlr's -0.232  0.699  0.719              
+SCHLMastr's -0.197  0.590  0.607  0.560       
+SCHLDoctort -0.077  0.231  0.238  0.220  0.186
 ~~~
 {:.output}
 
 
-The familiar assessment of model residuals is absent from the summary due to the
-lack of a widely accepted measure of null and residual deviance. The notions of
-model saturation, degrees of freedom, and independence of observations have all
-crossed onto thin ice.
-{:.notes}
+===
 
 In a `lm` or `glm` fit, each response is conditionally independent, given it's
 predictors and the model coefficients. Each observation corresponds to it's own
-probability statement. In a model with random effects, each response is no
-longer conditionally independent, given it's predictors and model coefficients.
+probability statement. Mixed models allow you to specify random effects,  assuming that the response variable is *not* independent given the predictors and model coefficients. In short, mixed models account for the variation due to the random effects and then estimate the coefficients for the fixed effects. 
+{:.notes}
+
+Mixed models are more complicated to interpret. The familiar assessment of model residuals is absent from the summary due to the
+lack of a widely accepted measure of null and residual deviance. One way to evaluate mixed models is to compare models with different combinations of fixed effects and to the null model. 
+{:.notes}
+
+We can create a null model where we include the random effect of marital status but take out the fixed effect of education. 
+
+
+
+~~~r
+null.model <- lmer(
+  log(WAGP) ~ (1|MAR),
+  data = pums)
+~~~
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+
+===
+
+To compare the fit model to the null model, use the `anova` function. 
+
+
+
+~~~r
+anova(null.model, fit)
+~~~
+{:title="{{ site.data.lesson.handouts[0] }}" .text-document}
+
+
+~~~
+refitting model(s) with ML (instead of REML)
+~~~
+{:.output}
+
+
+~~~
+Data: pums
+Models:
+null.model: log(WAGP) ~ (1 | MAR)
+fit: log(WAGP) ~ (1 | MAR) + SCHL
+           npar   AIC   BIC  logLik deviance  Chisq Df Pr(>Chisq)    
+null.model    3 13310 13329 -6651.8    13304                         
+fit           8 12992 13043 -6488.1    12976 327.37  5  < 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+~~~
+{:.output}
+
+
+===
+
+Based on a Chi-squared test, the fit model with education has a lower deviance than the null model, suggesting that education has an effect on wages. 
+
+Other factors, such as AIC, BIC, and log likelihood scores are also often used to compare and evaluate mixed models. 
 {:.notes}
 
 ===
@@ -136,7 +191,14 @@ fit <- lmer(
 
 ~~~
 Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
-Model failed to converge with max|grad| = 0.207748 (tol = 0.002, component 1)
+unable to evaluate scaled gradient
+~~~
+{:.output}
+
+
+~~~
+Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
+Model failed to converge: degenerate Hessian with 1 negative eigenvalues
 ~~~
 {:.output}
 
@@ -144,8 +206,9 @@ Model failed to converge with max|grad| = 0.207748 (tol = 0.002, component 1)
 ===
 
 The warning that the procedure `failed to converge` is worth paying attention
-to. In this case, we can proceed by switching to the slower numerical optimizer
-that [lme4](){:.rlib} previously used by default.
+to. One way to fix this is to change the numerical optimizer used for model fitting
+that [lme4](){:.rlib} is used by default. In this example, we change the optimizer to a "BOBYQA" optimizer, which is slower than the default. 
+{:.notes}
 
 
 
@@ -172,22 +235,22 @@ Formula: log(WAGP) ~ (WKHP | SCHL)
    Data: pums
 Control: lmerControl(optimizer = "bobyqa")
 
-REML criterion at convergence: 11670.1
+REML criterion at convergence: 11658.5
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
--9.4561 -0.3967  0.1710  0.6409  2.7948 
+-9.4553 -0.4071  0.1718  0.6258  2.7864 
 
 Random effects:
  Groups   Name        Variance  Std.Dev. Corr 
- SCHL     (Intercept) 11.986642 3.46217       
-          WKHP         0.003189 0.05647  -1.00
- Residual              0.902750 0.95013       
+ SCHL     (Intercept) 11.856218 3.44329       
+          WKHP         0.003239 0.05692  -1.00
+ Residual              0.900166 0.94877       
 Number of obs: 4246, groups:  SCHL, 6
 
 Fixed effects:
             Estimate Std. Error t value
-(Intercept)  11.3194     0.1052   107.6
+(Intercept)  11.2851     0.1084   104.1
 ~~~
 {:.output}
 
@@ -196,7 +259,7 @@ Fixed effects:
 
 The `predict` function extracts model predictions from a fitted model object
 (i.e. the output of `lm`, `glm`, `lmer`, and `glmer`), providing one easy
-way to visualize the effect of estimated coefficients.
+way to visualize the effect of estimated coefficients. We can plot the extracted coefficients using `ggplot`.
 
 
 
@@ -208,12 +271,15 @@ ggplot(pums,
   labs(title = 'Random intercept and slope with lmer')
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
-![ ]({% include asset.html path="images/lme4/unnamed-chunk-5-1.png" %})
+![ ]({% include asset.html path="images/lme4/unnamed-chunk-7-1.png" %})
 {:.captioned}
+
+As you can see, each level of education has its own intercept **and** slope for the best fit line. 
+{:.notes}
 
 ===
 
 ### Generalized Mixed Models
 
 The `glmer` function adds upon `lmer` the option to specify the same group of
-exponential family distributions for the residuals available to `glm`.
+exponential family distributions as `glm` adds to `lm`. The same `family` argument is used in `glmer` to specify the distribution. 

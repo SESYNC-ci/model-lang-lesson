@@ -36,7 +36,9 @@ $$
 
 Mixed models can be fit with "random intercepts" and "random slopes". With a random intercept, each level within the random effect can have a different intercept. With a random slope, each level can have a different slope. 
 
-In `lme4` random effects are shown in the formula inside parentheses, with variables to the right of a "|" to fit random intercept, and to the left to fit a random slope. 
+In `lme4` random effects are shown in the formula inside parentheses, with variables to the right of a "\|" to fit random intercept, and to the left to fit a random slope. 
+
+===
 
 | Formula                  | Description of random effect |
 |--------------------------|-------------|
@@ -58,11 +60,11 @@ fit <- lmer(
   data = pums)
 ```
 
-===
-
 ```{r lmer_ri_summary}
 summary(fit)
 ```
+
+===
 
 In a `lm` or `glm` fit, each response is conditionally independent, given it's
 predictors and the model coefficients. Each observation corresponds to it's own
@@ -73,7 +75,7 @@ Mixed models are more complicated to interpret. The familiar assessment of model
 lack of a widely accepted measure of null and residual deviance. One way to evaluate mixed models is to compare models with different combinations of fixed effects and to the null model. 
 {:.notes}
 
-In this example, we can create a null model where we include the random effect of marital status but take out the fixed effect of education. 
+We can create a null model where we include the random effect of marital status but take out the fixed effect of education. 
 
 ```{r,  handout = 0}
 null.model <- lmer(
@@ -88,6 +90,8 @@ To compare the fit model to the null model, use the `anova` function.
 ```{r,  handout = 0}
 anova(null.model, fit)
 ```
+
+===
 
 Based on a Chi-squared test, the fit model with education has a lower deviance than the null model, suggesting that education has an effect on wages. 
 
@@ -113,6 +117,7 @@ fit <- lmer(
 The warning that the procedure `failed to converge` is worth paying attention
 to. One way to fix this is to change the numerical optimizer used for model fitting
 that [lme4](){:.rlib} is used by default. In this example, we change the optimizer to a "BOBYQA" optimizer, which is slower than the default. 
+{:.notes}
 
 ```{r, handout = 0}
 fit <- lmer(

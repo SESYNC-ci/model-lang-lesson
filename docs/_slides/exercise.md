@@ -63,22 +63,22 @@ lm(formula = WAGP ~ SCHL, data = pums)
 
 Residuals:
    Min     1Q Median     3Q    Max 
--61303 -18827  -5827  12325 145173 
+-61303 -18649  -5649  12990 144351 
 
 Coefficients:
                    Estimate Std. Error t value Pr(>|t|)    
-(Intercept)           19614       1363  14.391  < 2e-16 ***
-SCHLHigh School        8062       1630   4.945 7.89e-07 ***
-SCHLCollege Credit    10214       1518   6.727 1.96e-11 ***
-SCHLBachelor's        29976       1684  17.795  < 2e-16 ***
-SCHLMaster's          35197       2003  17.569  < 2e-16 ***
-SCHLDoctorate         43889       5152   8.519  < 2e-16 ***
+(Intercept)           19614       1362  14.404  < 2e-16 ***
+SCHLHigh School        7396       1584   4.670 3.11e-06 ***
+SCHLCollege Credit    11035       1538   7.177 8.34e-13 ***
+SCHLBachelor's        29976       1683  17.811  < 2e-16 ***
+SCHLMaster's          35197       2002  17.585  < 2e-16 ***
+SCHLDoctorate         43889       5148   8.526  < 2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 27660 on 4240 degrees of freedom
-Multiple R-squared:  0.1389,	Adjusted R-squared:  0.1379 
-F-statistic: 136.8 on 5 and 4240 DF,  p-value: < 2.2e-16
+Residual standard error: 27640 on 4240 degrees of freedom
+Multiple R-squared:  0.1405,	Adjusted R-squared:  0.1394 
+F-statistic: 138.6 on 5 and 4240 DF,  p-value: < 2.2e-16
 ~~~
 {:.output}
 
@@ -99,9 +99,9 @@ Analysis of Variance Table
 
 Model 1: WAGP ~ SCHL
 Model 2: WAGP ~ SCHL + SEX
-  Res.Df        RSS Df  Sum of Sq      F    Pr(>F)    
-1   4240 3.2450e+12                                   
-2   4239 3.0469e+12  1 1.9806e+11 275.55 < 2.2e-16 ***
+  Res.Df        RSS Df  Sum of Sq     F    Pr(>F)    
+1   4240 3.2391e+12                                  
+2   4239 3.0369e+12  1 2.0218e+11 282.2 < 2.2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ~~~
@@ -128,23 +128,23 @@ lm(formula = WAGP ~ SCHL + WKHP, data = pums)
 
 Residuals:
    Min     1Q Median     3Q    Max 
--82762 -14392  -3919   9306 142326 
+-82469 -14392  -3970   9369 141498 
 
 Coefficients:
-                    Estimate Std. Error t value Pr(>|t|)    
-(Intercept)        -16510.68    1627.64 -10.144  < 2e-16 ***
-SCHLHigh School      3230.58    1458.67   2.215   0.0268 *  
-SCHLCollege Credit   7146.98    1354.98   5.275 1.40e-07 ***
-SCHLBachelor's      23865.31    1511.03  15.794  < 2e-16 ***
-SCHLMaster's        27993.27    1796.83  15.579  < 2e-16 ***
-SCHLDoctorate       34789.96    4595.62   7.570 4.54e-14 ***
-WKHP                 1050.93      31.56  33.304  < 2e-16 ***
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)        -16544.1     1624.9 -10.181  < 2e-16 ***
+SCHLHigh School      2874.5     1415.8   2.030   0.0424 *  
+SCHLCollege Credit   7969.6     1371.2   5.812 6.63e-09 ***
+SCHLBachelor's      23859.7     1508.8  15.814  < 2e-16 ***
+SCHLMaster's        27986.6     1794.2  15.599  < 2e-16 ***
+SCHLDoctorate       34781.5     4588.8   7.580 4.23e-14 ***
+WKHP                 1051.9       31.5  33.398  < 2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 24630 on 4239 degrees of freedom
-Multiple R-squared:  0.3175,	Adjusted R-squared:  0.3165 
-F-statistic: 328.6 on 6 and 4239 DF,  p-value: < 2.2e-16
+Residual standard error: 24600 on 4239 degrees of freedom
+Multiple R-squared:  0.3195,	Adjusted R-squared:  0.3185 
+F-statistic: 331.7 on 6 and 4239 DF,  p-value: < 2.2e-16
 ~~~
 {:.output}
 

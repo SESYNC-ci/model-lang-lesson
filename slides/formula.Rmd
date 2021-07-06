@@ -47,7 +47,7 @@ The formula notation for linear models is a response variable left of a `~` and 
 
 ===
 
-| Formula           | Description |
+| Formula           | Description of right hand side |
 |-------------------|-------------|
 | `y ~ a`           | constant and one predictor |
 | `y ~ a + b`       | constant and two predictors |
@@ -58,7 +58,7 @@ The formula notation for linear models is a response variable left of a `~` and 
 The constant can be explicitly removed, although this is rarely
 needed in practice. Assume an intercept is fitted unless its absence is explicitly noted.
 
-| Formula      | Description |
+| Formula      | Description of right hand side |
 |--------------|-------------|
 | `y ~ -1 + a` | one predictor with no constant |
 

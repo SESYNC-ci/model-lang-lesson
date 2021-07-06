@@ -5,7 +5,7 @@
 
 - Learn functions and packages for statistical modeling in R
 - Understand "formulas" of model specification
-- Introduce simple and complex "linear", regression models
+- Introduce simple and complex "linear" regression models
 
 ===
 
@@ -36,6 +36,8 @@ In this lesson, you will use Public Use Microdata Sample (PUMS) data collected b
 
 First, load the data file, including only a small subset of the variables from the full ACS survey. 
 
+===
+
 ```{r, handout = 0, message = FALSE}
 library(readr)
 library(dplyr)
@@ -47,7 +49,6 @@ pums <- read_csv(
     WAGP = 'd',  # Wages or salary income past 12 months
     SCHL = 'i',  # Educational attainment
     SEX = 'f',   # Sex
-    OCCP = 'f',  # Occupation recode based on 2010 OCC codes
     MAR = 'f', # Marital status
     HINS1 = 'f', # has insurance through employer
     WKHP = 'i')) # Usual hours worked per week past 12 months
@@ -63,7 +64,13 @@ The [dplyr](){:.rlib} package is also used in this lesson to manipulate the data
 
 ===
 
-In the ACS data, educational attainment, `SCHL`, is coded numerically from 1-24. We can collapse the education attainment levels for this lesson into factors. We can also remove all non wage-earners (where wages is equal to 0) and the "top coded" individuals, representing a group of very high earners, using the `filter` function from the [dplyr](){:.rlib} package. 
+In the ACS data, educational attainment, `SCHL`, is coded numerically from 1-24. We can collapse the education attainment levels for this lesson into factors. 
+
+===
+
+We can also remove all non wage-earners (where wages is equal to 0) and the "top coded" individuals, representing a group of very high earners, using the `filter` function from the [dplyr](){:.rlib} package. 
+
+===
 
 ```{r, handout = 0}
 pums <- within(pums, {
