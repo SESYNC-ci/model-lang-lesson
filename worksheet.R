@@ -100,7 +100,7 @@ fit <- lmer(
   data = pums,
   ... = lmerControl(... = "bobyqa"))
 
-ggplot(person,
+ggplot(pums,
   aes(x = ..., y = ..., color = ...)) +
   geom_point() +
   geom_line(...) +

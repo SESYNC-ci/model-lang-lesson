@@ -9,7 +9,7 @@ standing for linear model.
 
 
 ~~~r
-fit <- lm(
+fit.schl <- lm(
   formula = WAGP ~ SCHL,
   data = pums)
 ~~~
@@ -59,7 +59,7 @@ are many orders of magnitude larger than the mean. Therefore, we can log transfo
 
 
 ~~~r
-fit <- lm(
+fit.schl <- lm(
   log(WAGP) ~ SCHL,
   pums)
 ~~~
@@ -69,7 +69,7 @@ fit <- lm(
 
 
 ~~~r
-> summary(fit)
+> summary(fit.schl)
 ~~~
 {:title="Console" .input}
 
@@ -114,7 +114,7 @@ Compare the model above which fit the wages and level of education (a factor) wi
 
 
 ~~~r
-fit <- lm(
+fit.agep <- lm(
   log(WAGP) ~ AGEP,
   pums)
 ~~~
@@ -124,7 +124,7 @@ fit <- lm(
 
 
 ~~~r
-> summary(fit)
+> summary(fit.agep)
 ~~~
 {:title="Console" .input}
 
@@ -152,9 +152,13 @@ F-statistic: 433.2 on 1 and 4244 DF,  p-value: < 2.2e-16
 {:.output}
 
 
+===
+
 In the model with `AGEP`, the intercept and slope is fit. The slope describes the relationship between age and wages and can show a positive, negative, or no relationship between the two variables. 
 {:.notes}
 
-In the model with `SCHL`, multiple intercepts are fit. The same (Intercept) is fit and 5 intercepts for different factors of `SCHL`. As you can see, the `SCHL` level "Incomplete" is not fit. Each of the `SCHL` intercepts are based on the "Incomplete" factor, so "Incomplete"" is in theory the (Intercept) coefficient. 
+In the model with `SCHL`, multiple intercepts are fit. The same (Intercept) is fit and 5 intercepts for different factors of `SCHL`. 
+
+As you can see, the `SCHL` level "Incomplete" is not fit. Each of the `SCHL` intercepts are based on the "Incomplete" factor, so "Incomplete"" is in theory the (Intercept) coefficient. 
 For example, the intercept for "SCHLHigh School" is 0.57470, meaning that the log(wages) for someone who completed high school are 0.57 more than someone with incomplete school credit. 
 {:.notes}

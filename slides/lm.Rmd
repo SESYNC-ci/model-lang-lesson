@@ -7,7 +7,7 @@ With the US Census data, we will use a linear regression to determine the relati
 standing for linear model.
 
 ```{r, handout = 0}
-fit <- lm(
+fit.schl <- lm(
   formula = WAGP ~ SCHL,
   data = pums)
 ```
@@ -48,13 +48,13 @@ The `WAGP` variable is always positive and includes some values that
 are many orders of magnitude larger than the mean. Therefore, we can log transform the wages in the model.
 
 ```{r lm_weight, handout = 0}
-fit <- lm(
+fit.schl <- lm(
   log(WAGP) ~ SCHL,
   pums)
 ```
 
 ```{r}
-summary(fit)
+summary(fit.schl)
 ```
 
 ===
@@ -68,13 +68,13 @@ For the predictors in a linear model, there is a big difference between factors 
 Compare the model above which fit the wages and level of education (a factor) with one that uses age (a numerical category)
 
 ```{r, handout = 0}
-fit <- lm(
+fit.agep <- lm(
   log(WAGP) ~ AGEP,
   pums)
 ```
 
 ```{r}
-summary(fit)
+summary(fit.agep)
 ```
 
 ===

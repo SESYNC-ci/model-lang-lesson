@@ -98,7 +98,7 @@ difference in the optimum.
 ### Logistic Regression
 
 Calling `glm` with `family = binomial` using the default "logit" link performs
-logistic regression. We can use this to model the relationship between if an individual has insurance through their employer (`HINDS1`) and wages (`WAGP`) as an example, although this is not a meaningful statistical test.
+logistic regression. We can use this to model the relationship between if an individual has insurance through their employer (`HINDS1`) and wages (`WAGP`).
 
 
 
@@ -244,8 +244,12 @@ Number of Fisher Scoring iterations: 5
 
 
 ===
+
 The always popular $$R^2$$ indicator for goodness-of-fit is absent from the
 summary of a `glm` result, as is the default F-Test of the model's significance.
+
+===
+
 The developers of `glm`, detecting an increase in user sophistication, are
 leaving more of the model assessment up to you. The "null deviance" and
 "residual deviance" provide most of the information we need. To test the fit of a generalized linear model, it is best to compare the deviance of model to the "null model," which is the model without predictor variables. Therefore, the null model only fits the intercept. 
@@ -256,31 +260,19 @@ Use a Chi-squared test to see if the deviance in your model is lower than the nu
 
 
 ~~~r
-anova(fit, update(fit, SEX ~ 1), test = 'Chisq')
+anova(fit, update(fit, HINS1 ~ 1), test = 'Chisq')
 ~~~
 {:title="{{ site.data.lesson.handouts[0] }}" .text-document}
 
 
 ~~~
-Warning in anova.glmlist(c(list(object), dotargs), dispersion = dispersion, :
-models with response '"SEX"' removed because response differs from model 1
-~~~
-{:.output}
-
-
-~~~
 Analysis of Deviance Table
 
-Model: binomial, link: logit
-
-Response: HINS1
-
-Terms added sequentially (first to last)
-
-
-     Df Deviance Resid. Df Resid. Dev  Pr(>Chi)    
-NULL                  4245     5150.0              
-WAGP  1    385.1      4244     4764.9 < 2.2e-16 ***
+Model 1: HINS1 ~ WAGP
+Model 2: HINS1 ~ 1
+  Resid. Df Resid. Dev Df Deviance  Pr(>Chi)    
+1      4244     4764.9                          
+2      4245     5150.0 -1   -385.1 < 2.2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ~~~

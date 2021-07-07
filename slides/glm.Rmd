@@ -129,5 +129,5 @@ leaving more of the model assessment up to you. The "null deviance" and
 Use a Chi-squared test to see if the deviance in your model is lower than the null model.
 
 ```{r, handout = 0}
-anova(fit, update(fit, SEX ~ 1), test = 'Chisq')
+anova(fit, update(fit, HINS1 ~ 1), test = 'Chisq')
 ```
