@@ -5,27 +5,28 @@
 
 ### Exercise 1
 
-Regress `WKHP` against `AGEP`, adding a second-order interaction to allow for
-possible curvature in the relationship. Plot the predicted values over the data
+Regress the number of hours worked in a week (`WKHP`) against age (`AGEP`). Add a second-order interaction ($$X^2$$) of age to allow for
+possible curvature in the relationship. Then, plot the predicted values over the data
 to verify the coefficients indicate a downward quadratic relationship.
 
 ### Exercise 2
 
 Controlling for a person's educational attainment, fit a linear model that
 addresses the question of wage disparity between men and women in the U.S.
-workforce. What other predictor from the `pums` data frame would increase the
-goodness-of-fit of the "control" model, before SEX is considered?
+workforce. Compare the model to one where sex is not considered.
+
+Add another predictor from the `pums` data frame and evaluate the goodness-of-fit as other predictors are added to the model.
 
 ### Exercise 3
 
-Set up a generalized mixed effects model on whether a person attained an advanced
-degree (Master's or Doctorate). Include sex and age as fixed effects, and include
-a random intercept according to occupation.
+Write down the formula for a random intercepts model for earned wages with a
+fixed effect of sex and a random effect of educational attainment.
 
 ### Exercise 4
 
-Write down the formula for a random intercepts model for earned wages with a
-fixed effect of sex and a random effect of educational attainment.
+Set up a generalized mixed effects model on whether a person attained an advanced
+degree (Master's or Doctorate). Include sex and age as fixed effects, and include
+a random intercept according to marital status.
 
 ===
 
@@ -43,36 +44,50 @@ ggplot(pums,
 ```
 
 ```{r, title = "Solution 2"}
-fit <- lm(WAGP ~ SCHL, pums)
-summary(fit)
+fit.full <- lm(WAGP ~ SCHL + SEX, pums)
+summary(fit.full)
 ```
-
-The "baseline" model includes educational attainment, when compared to a model
-with sex as a second predictor, there is a strong indication of signifigance.
 
 ```{r, title = "Solution 2"}
-anova(fit, update(fit, WAGP ~ SCHL + SEX))
+fit.schl<- lm(WAGP ~ SCHL, pums)
+summary(fit.schl)
 ```
 
-Adding WKHP to the baseline increases the $$R^2$$ to `.32` from `.14` with just
-`SCHL`. There is no way to include the possibility that hours worked also
-dependends on sex, giving a direct and indirect path to the gender wage gap, in
-a linear model.
+We can use the `anova` function to compare the two models. 
 
 ```{r, title = "Solution 2"}
-summary(update(fit, WAGP ~ SCHL + WKHP))
+anova(fit.full, fit.schl, test='Chisq')
 ```
+
+The two models are significantly different based on the residual sum of squares, a strong indication that sex explains a significant amount of the variation in wages.
+
+We can also add an additional predictor, such as weekly hours worked, `WKHP` to the model. 
+
+```{r, title = "Solution 2"}
+fit.wkhp <- lm(WAGP ~ SCHL + SEX + WKHP, data = pums) 
+summary(fit.wkhp)
+```
+
+Adding `WKHP` to the model increases the $$R^2$$ from `0.19` to `.34`.
 
 ```{r, title = "Solution 3"}
-df <- pums
-levels(df$SCHL) <- c(0, 0, 0, 0, 1, 1)
-fit <- glmer(
-  SCHL ~ (1 | OCCP) + AGEP,
-  family = binomial,
-  data = df)
-anova(fit, update(fit, . ~ . + SEX), test = 'Chisq')
+WAGP ~ (1 | SCHL) + SEX
 ```
 
 ```{r, title = "Solution 4"}
-WAGP ~ (1 | SCHL) + SEX
+df <- pums
+levels(df$SCHL) <- c(0, 0, 0, 0, 1, 1) 
 ```
+
+First, we have to manipulate the `pums` data from so that the levels of education are binomial, making education levels of Master's or Doctorate Degrees as 1 and all others as 0. This edited data frame is stored as `df`.
+
+```{r, title = "Solution 4"}
+fit <- glmer(
+  SCHL ~ (1 | MAR) + AGEP + SEX,
+  family = binomial,
+  data = df)
+
+summary(fit)
+```
+
+
