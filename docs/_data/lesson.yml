@@ -14,6 +14,7 @@ badgecolor: green # color for lifecycle badge
 warning: false # whether to include note about lifecycle status
 authors:
   - Ian Carroll
+  - Mary Glover
 sorter:
   - intro
   - formula
