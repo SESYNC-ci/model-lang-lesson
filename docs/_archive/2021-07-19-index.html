@@ -1,0 +1,1231 @@
+---
+---
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regression</title>
+<meta name="description" content="Write formulas for linear and GLM regression models in R">
+<link rel="canonical"
+      href="https://SESYNC-ci.github.io/model-lang-lesson/2021/07/19/index.html">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/SESYNC-ci/lesson-style@3.0/docs/assets/css/default.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/SESYNC-ci/lesson-style@3.0/docs/assets/css/syntax.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/SESYNC-ci/lesson-style@3.0/docs/assets/css/static.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<link href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+      rel="stylesheet"
+      integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+      crossorigin="anonymous">
+
+    
+  </head>
+  <body>
+    <div class="page-content">
+      <div class="wrapper">
+        
+
+<h1 style="text-transform: none;" id="regression">Regression</h1>
+
+<p>Lesson 6 with <em>Mary Glover</em></p>
+
+<nav id="ToC">
+
+  <ul>
+    <li><a href="#/slides/intro">Lesson Objectives</a></li>
+    <li><a href="#/slides/formula">Formula Notation</a></li>
+    <li><a href="#/slides/lm">Linear Regression</a></li>
+    <li><a href="#/slides/glm">Generalized Linear Models</a></li>
+    <li><a href="#/slides/lme4">Linear Mixed Models</a></li>
+    <li><a href="#/slides/conclude">A Little Advice</a></li>
+    <li><a href="#/slides/exercise">Exercises</a></li>
+  </ul>
+</nav>
+
+<hr />
+<p><a name="/slides/intro"></a></p>
+
+<section><h2 id="lesson-objectives">Lesson Objectives</h2>
+
+<ul>
+  <li>Learn functions and packages for statistical modeling in R</li>
+  <li>Understand “formulas” of model specification</li>
+  <li>Introduce simple and complex “linear” regression models</li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="specific-achievements">Specific Achievements</h2>
+
+<ul>
+  <li>Write a simple linear formula using <code class="language-plaintext highlighter-rouge">lm</code> function.</li>
+  <li>Write a linear formula with a non-gaussian family using the <code class="language-plaintext highlighter-rouge">glm</code> function.</li>
+  <li>Add a “random effect” into a linear formula using the a <code class="language-plaintext highlighter-rouge">lmer</code> package</li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="lesson-non-objectives">Lesson Non-objectives</h2>
+
+<p class="notes">The main objective of this lesson is coding of linear models in R and does assume some introductory knowledge of statistics and linear models. This lesson does <em>not</em> cover the following topics related to statistical modeling. These should be considered carefully when analyzing data.</p>
+
+<ul>
+  <li>Experimental/sampling design</li>
+  <li>Model validation</li>
+  <li>Hypothesis tests</li>
+  <li>Model comparison</li>
+</ul>
+
+</section>
+
+<section>
+
+<h2 id="dataset">Dataset</h2>
+
+<p class="notes">In this lesson, you will use Public Use Microdata Sample (PUMS) data collected by the US Census Bureau. This CSV file contains individuals’ anonymized responses to the 5 Year American Community Survey (ACS) completed in 2017. There are over a hundred variables giving individual level data on household members income, education, employment, ethnicity, and much more. The <a href="https://www.census.gov/programs-surveys/acs/technical-documentation/pums/documentation.html">technical documentation</a> for the PUMS data includes a data dictionary, explaining the codes used for the variable, such as education attainment, and other information about the dataset.</p>
+
+<p>First, load the data file, including only a small subset of the variables from the full ACS survey.</p>
+
+</section>
+
+<section>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">readr</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span><span class="w">
+
+</span><span class="n">pums</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_csv</span><span class="p">(</span><span class="w">
+  </span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'data/census_pums/sample.csv'</span><span class="p">,</span><span class="w">
+  </span><span class="n">col_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cols_only</span><span class="p">(</span><span class="w">
+    </span><span class="n">AGEP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'i'</span><span class="p">,</span><span class="w">  </span><span class="c1"># Age</span><span class="w">
+    </span><span class="n">WAGP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'d'</span><span class="p">,</span><span class="w">  </span><span class="c1"># Wages or salary income past 12 months</span><span class="w">
+    </span><span class="n">SCHL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'i'</span><span class="p">,</span><span class="w">  </span><span class="c1"># Educational attainment</span><span class="w">
+    </span><span class="n">SEX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'f'</span><span class="p">,</span><span class="w">   </span><span class="c1"># Sex</span><span class="w">
+    </span><span class="n">MAR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'f'</span><span class="p">,</span><span class="w"> </span><span class="c1"># Marital status</span><span class="w">
+    </span><span class="n">HINS1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'f'</span><span class="p">,</span><span class="w"> </span><span class="c1"># has insurance through employer</span><span class="w">
+    </span><span class="n">WKHP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'i'</span><span class="p">))</span><span class="w"> </span><span class="c1"># Usual hours worked per week past 12 months</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">The <a href="" class="rlib">readr</a> package gives additional flexibility and speed over the
+base R <code class="language-plaintext highlighter-rouge">read.csv</code> function. The CSV contains 4 million rows, equating to several
+gigabytes, so a sample suffices while developing ideas for visualization.</p>
+
+<p class="notes">The <a href="" class="rlib">dplyr</a> package is also used in this lesson to manipulate the data frames.</p>
+
+</section>
+
+<section>
+
+<p>In the ACS data, educational attainment, <code class="language-plaintext highlighter-rouge">SCHL</code>, is coded numerically from 1-24. We can collapse the education attainment levels for this lesson into factors.</p>
+
+</section>
+
+<section>
+
+<p>We can also remove all non wage-earners (where wages is equal to 0) and the “top coded” individuals, representing a group of very high earners, using the <code class="language-plaintext highlighter-rouge">filter</code> function from the <a href="" class="rlib">dplyr</a> package.</p>
+
+</section>
+
+<section>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">pums</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">within</span><span class="p">(</span><span class="n">pums</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="n">SCHL</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">SCHL</span><span class="p">)</span><span class="w">
+  </span><span class="n">levels</span><span class="p">(</span><span class="n">SCHL</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="w">
+    </span><span class="s1">'Incomplete'</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="m">15</span><span class="p">),</span><span class="w">
+    </span><span class="s1">'High School'</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">16</span><span class="o">:</span><span class="m">17</span><span class="p">,</span><span class="w">
+    </span><span class="s1">'College Credit'</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">18</span><span class="o">:</span><span class="m">20</span><span class="p">,</span><span class="w">
+    </span><span class="s1">'Bachelor\'s'</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">21</span><span class="p">,</span><span class="w">
+    </span><span class="s1">'Master\'s'</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">22</span><span class="o">:</span><span class="m">23</span><span class="p">,</span><span class="w">
+    </span><span class="s1">'Doctorate'</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">24</span><span class="p">)})</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">filter</span><span class="p">(</span><span class="w">
+    </span><span class="n">WAGP</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w">
+    </span><span class="n">WAGP</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">WAGP</span><span class="p">,</span><span class="w"> </span><span class="n">na.rm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+</section>
+
+<p class="ToS"><a href="#/slides/intro">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/formula"></a></p>
+
+<section><h2 id="formula-notation">Formula Notation</h2>
+
+<p class="notes">The developers of R created an approach to statistical analysis that is both
+concise and flexible from the users perspective, while remaining precise and
+well-specified for a particular fitting procedure.</p>
+
+<p>The researcher contemplating a new regression analysis faces three initial
+challenges:</p>
+
+<ol>
+  <li>Choose the R function that implements a suitable fitting procedure.</li>
+  <li>Write the regression model using a formula expression combining
+variable names with algebra-like operators.</li>
+  <li>Build a data frame with columns matching these variables that have suitable
+data types for the chosen fitting procedure.</li>
+</ol>
+
+<p class="notes">The formula expressions are usually very concise, in part because the function
+chosen to implement the fitting procedure extracts much necessary information
+from the provided data frame. For example, whether a variable is a factor or
+numeric is not specified in the formula because it is specified in the data.</p>
+
+</section>
+
+<section>
+
+<h2 style="text-transform: none;" id="formula-mini-languages">Formula Mini-languages</h2>
+
+<ul>
+  <li>“base R” function <code class="language-plaintext highlighter-rouge">lm()</code></li>
+  <li>“base R” function <code class="language-plaintext highlighter-rouge">glm()</code></li>
+  <li><a href="" class="rlib">lme4</a> function <code class="language-plaintext highlighter-rouge">lmer()</code></li>
+  <li><a href="" class="rlib">lme4</a> function <code class="language-plaintext highlighter-rouge">glmer()</code></li>
+</ul>
+
+<p class="notes">There are many R packages that are used for complex statistical modeling. Packages add additional syntax to the model formula or new
+arguments to the fitting function. For example, the <code class="language-plaintext highlighter-rouge">lm</code> function allows only the simplest
+kinds of expressions, while the <a href="" class="rlib">lme4</a> package has its own
+“mini-language” to allow specification of hierarchichal models.</p>
+
+</section>
+
+<section>
+
+<h2 id="linear-models">Linear Models</h2>
+
+<p>The formula notation for linear models is a response variable left of a <code class="language-plaintext highlighter-rouge">~</code> and any number of predictors to its right. By default, the intercept, or constant, is fit in the model, so is not included in the formula.</p>
+
+</section>
+
+<section>
+
+<table>
+  <thead>
+    <tr>
+      <th>Formula</th>
+      <th>Description of right hand side</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ a</code></td>
+      <td>constant and one predictor</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ a + b</code></td>
+      <td>constant and two predictors</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ a + b + a:b</code></td>
+      <td>constant and two predictors and their interaction</td>
+    </tr>
+  </tbody>
+</table>
+
+</section>
+
+<section>
+
+<p>The constant can be explicitly removed, although this is rarely
+needed in practice. Assume an intercept is fitted unless its absence is explicitly noted.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Formula</th>
+      <th>Description of right hand side</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ -1 + a</code></td>
+      <td>one predictor with no constant</td>
+    </tr>
+  </tbody>
+</table>
+
+</section>
+
+<section>
+
+<p>There are also shorthand notations for higher-order interactions.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Formula</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ a*b</code></td>
+      <td>all combinations of two variables</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ (a + b)^2</code></td>
+      <td>equivalent to <code class="language-plaintext highlighter-rouge">y ~ a*b</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ (a + b + ... )^n</code></td>
+      <td>all combinations of all predictors up to order <code class="language-plaintext highlighter-rouge">n</code></td>
+    </tr>
+  </tbody>
+</table>
+</section>
+
+<p class="ToS"><a href="#/slides/formula">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/lm"></a></p>
+
+<section><h2 id="linear-regression">Linear Regression</h2>
+
+<p>With the US Census data, we will use a linear regression to determine the relationship between educational attainment (<code class="language-plaintext highlighter-rouge">SCHL</code>) and wages (<code class="language-plaintext highlighter-rouge">WAGP</code>). The basic function for fitting a regression in R is the <code class="language-plaintext highlighter-rouge">lm()</code> function,
+standing for linear model.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">fit.schl</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="w">
+  </span><span class="n">formula</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WAGP</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">SCHL</span><span class="p">,</span><span class="w">
+  </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pums</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p class="notes">The <code class="language-plaintext highlighter-rouge">lm()</code> function takes a formula argument and a data argument, and computes
+the best fitting linear model (i.e. determines coefficients that <a href="https://en.wikipedia.org/wiki/Linear_least_squares_(mathematics)">minimize the
+sum of squared residuals</a>.</p>
+
+</section>
+
+<section>
+
+<p>Data visualizations can help confirm intuition, but only with very simple
+models, typically with just one or two “fixed effects”.</p>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> 
+</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ggplot</span><span class="p">(</span><span class="n">pums</span><span class="p">,</span><span class="w">
+</span><span class="o">+</span><span class="w">   </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SCHL</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WAGP</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span><span class="o">+</span><span class="w">   </span><span class="n">geom_boxplot</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/model-lang-lesson@v0.5/docs/assets/images/lm/unnamed-chunk-2-1.png" alt=" " /></p>
+
+</section>
+
+<section>
+
+<p>Within the formula expressions, data transformation functions can also be used.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Formula</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ log(a)</code></td>
+      <td>log transformed variable</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ sin(a)</code></td>
+      <td>periodic function of a variable</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ I(a*b)</code></td>
+      <td>product of variables, protected by <code class="language-plaintext highlighter-rouge">I</code> from expansion</td>
+    </tr>
+  </tbody>
+</table>
+
+</section>
+
+<section>
+
+<p>The <code class="language-plaintext highlighter-rouge">WAGP</code> variable is always positive and includes some values that
+are many orders of magnitude larger than the mean. Therefore, we can log transform the wages in the model.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">fit.schl</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="w">
+  </span><span class="nf">log</span><span class="p">(</span><span class="n">WAGP</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">SCHL</span><span class="p">,</span><span class="w">
+  </span><span class="n">pums</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">summary</span><span class="p">(</span><span class="n">fit.schl</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+Call:
+lm(formula = log(WAGP) ~ SCHL, data = pums)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-8.3795 -0.4623  0.2330  0.8055  2.5084 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)         9.21967    0.05861 157.313  &lt; 2e-16 ***
+SCHLHigh School     0.54611    0.06816   8.012 1.45e-15 ***
+SCHLCollege Credit  0.60397    0.06617   9.127  &lt; 2e-16 ***
+SCHLBachelor's      1.22164    0.07243  16.865  &lt; 2e-16 ***
+SCHLMaster's        1.36922    0.08615  15.894  &lt; 2e-16 ***
+SCHLDoctorate       1.49332    0.22155   6.740 1.79e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.19 on 4240 degrees of freedom
+Multiple R-squared:  0.09551,	Adjusted R-squared:  0.09444 
+F-statistic: 89.55 on 5 and 4240 DF,  p-value: &lt; 2.2e-16
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<h2 id="predictor-class">Predictor class</h2>
+
+<p>For the predictors in a linear model, there is a big difference between factors and numbers.</p>
+
+</section>
+
+<section>
+
+<p>Compare the model above which fit the wages and level of education (a factor) with one that uses age (a numerical category)</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">fit.agep</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="w">
+  </span><span class="nf">log</span><span class="p">(</span><span class="n">WAGP</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">AGEP</span><span class="p">,</span><span class="w">
+  </span><span class="n">pums</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">summary</span><span class="p">(</span><span class="n">fit.agep</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+Call:
+lm(formula = log(WAGP) ~ AGEP, data = pums)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-8.8094 -0.5513  0.2479  0.8093  2.1933 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 8.842905   0.055483  159.38   &lt;2e-16 ***
+AGEP        0.025525   0.001226   20.81   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.191 on 4244 degrees of freedom
+Multiple R-squared:  0.09261,	Adjusted R-squared:  0.0924 
+F-statistic: 433.2 on 1 and 4244 DF,  p-value: &lt; 2.2e-16
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p class="notes">In the model with <code class="language-plaintext highlighter-rouge">AGEP</code>, the intercept and slope is fit. The slope describes the relationship between age and wages and can show a positive, negative, or no relationship between the two variables.</p>
+
+<p>In the model with <code class="language-plaintext highlighter-rouge">SCHL</code>, multiple intercepts are fit. The same (Intercept) is fit and 5 intercepts for different factors of <code class="language-plaintext highlighter-rouge">SCHL</code>.</p>
+
+<p class="notes">As you can see, the <code class="language-plaintext highlighter-rouge">SCHL</code> level “Incomplete” is not fit. Each of the <code class="language-plaintext highlighter-rouge">SCHL</code> intercepts are based on the “Incomplete” factor, so “Incomplete”” is in theory the (Intercept) coefficient. 
+For example, the intercept for “SCHLHigh School” is 0.57470, meaning that the log(wages) for someone who completed high school are 0.57 more than someone with incomplete school credit.</p>
+</section>
+
+<p class="ToS"><a href="#/slides/lm">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/glm"></a></p>
+
+<section><h2 id="generalized-linear-models">Generalized Linear Models</h2>
+
+<p class="notes">In linear models, like those fit with <code class="language-plaintext highlighter-rouge">lm</code>, the distribution of the response variable is assumed to be a normal or gaussian. However, in many cases this assumption is not appropriate.</p>
+
+<p><em>Generalized</em> linear models allow for other distributions for the response variable, such as binomial or exponential distributions. In generalized linear models, a <em>link</em> function is used to transform the response variable. This causes the response variable to follow a more linear relationship with the predictor variables.</p>
+
+</section>
+
+<section>
+
+<p>Generalized linear models can be fit in R using the <code class="language-plaintext highlighter-rouge">glm</code> function, which is a part of base R. The <code class="language-plaintext highlighter-rouge">formula</code> syntax in the <code class="language-plaintext highlighter-rouge">lm</code> and <code class="language-plaintext highlighter-rouge">glm</code> functions are the same, but an additional argument, <code class="language-plaintext highlighter-rouge">family</code>, is used in <code class="language-plaintext highlighter-rouge">glm</code> to specify the distribution.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">family</code> argument determines the family of probability distributions in
+which the response variable belongs.</p>
+
+</section>
+
+<section>
+
+<table>
+  <thead>
+    <tr>
+      <th>Family</th>
+      <th>Data Type</th>
+      <th>(<em>default</em>) link functions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">gaussian</code></td>
+      <td><code class="language-plaintext highlighter-rouge">double</code></td>
+      <td><em>identity</em>, log, inverse</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">binomial</code></td>
+      <td><code class="language-plaintext highlighter-rouge">boolean</code></td>
+      <td><em>logit</em>, probit, cauchit, log, cloglog</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">poisson</code></td>
+      <td><code class="language-plaintext highlighter-rouge">integer</code></td>
+      <td><em>log</em>, identity, sqrt</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Gamma</code></td>
+      <td><code class="language-plaintext highlighter-rouge">double</code></td>
+      <td><em>inverse</em>, identity, log</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">inverse.gaussian</code></td>
+      <td><code class="language-plaintext highlighter-rouge">double</code></td>
+      <td><em>“1/mu^2”</em>, inverse, identity, log</td>
+    </tr>
+  </tbody>
+</table>
+
+</section>
+
+<section>
+
+<p>The previous model fit with <code class="language-plaintext highlighter-rouge">lm</code> is (almost) identical to a model fit using
+<code class="language-plaintext highlighter-rouge">glm</code> with the Gaussian family and identity link.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">glm</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="n">WAGP</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">SCHL</span><span class="p">,</span><span class="w">
+    </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gaussian</span><span class="p">,</span><span class="w">
+    </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pums</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+Call:
+glm(formula = log(WAGP) ~ SCHL, family = gaussian, data = pums)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-8.3795  -0.4623   0.2330   0.8055   2.5084  
+
+Coefficients:
+                   Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)         9.21967    0.05861 157.313  &lt; 2e-16 ***
+SCHLHigh School     0.54611    0.06816   8.012 1.45e-15 ***
+SCHLCollege Credit  0.60397    0.06617   9.127  &lt; 2e-16 ***
+SCHLBachelor's      1.22164    0.07243  16.865  &lt; 2e-16 ***
+SCHLMaster's        1.36922    0.08615  15.894  &lt; 2e-16 ***
+SCHLDoctorate       1.49332    0.22155   6.740 1.79e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for gaussian family taken to be 1.415141)
+
+    Null deviance: 6633.8  on 4245  degrees of freedom
+Residual deviance: 6000.2  on 4240  degrees of freedom
+AIC: 13532
+
+Number of Fisher Scoring iterations: 2
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<dl>
+  <dt>Question</dt>
+  <dd>Should the coefficient estimates between this Gaussian <code class="language-plaintext highlighter-rouge">glm()</code> and the previous
+<code class="language-plaintext highlighter-rouge">lm()</code> be different?</dd>
+  <dt>Answer</dt>
+  <dd class="fragment">It’s possible. The <code class="language-plaintext highlighter-rouge">lm()</code> function uses a different (less
+general) fitting procedure than the <code class="language-plaintext highlighter-rouge">glm()</code> function, which uses IWLS. But with
+64 bits used to store very precise numbers, it’s rare to encounter an noticeable
+difference in the optimum.</dd>
+</dl>
+
+</section>
+
+<section>
+
+<h3 id="logistic-regression">Logistic Regression</h3>
+
+<p>Calling <code class="language-plaintext highlighter-rouge">glm</code> with <code class="language-plaintext highlighter-rouge">family = binomial</code> using the default “logit” link performs
+logistic regression. We can use this to model the relationship between if an individual has insurance through their employer (<code class="language-plaintext highlighter-rouge">HINDS1</code>) and wages (<code class="language-plaintext highlighter-rouge">WAGP</code>).</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">glm</span><span class="p">(</span><span class="n">HINS1</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">WAGP</span><span class="p">,</span><span class="w">
+  </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">binomial</span><span class="p">,</span><span class="w">
+  </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pums</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>Interpreting the coefficients in the summary of the model is not obvious, but always works
+the same way. Looking at the model, you can see that the slope for <code class="language-plaintext highlighter-rouge">WAGP</code> is significant.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+Call:
+glm(formula = HINS1 ~ WAGP, family = binomial, data = pums)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.1614  -0.8791  -0.6448   1.2314   3.1749  
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -3.765e-02  5.487e-02  -0.686    0.493    
+WAGP        -2.855e-05  1.692e-06 -16.871   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 5150.0  on 4245  degrees of freedom
+Residual deviance: 4764.9  on 4244  degrees of freedom
+AIC: 4768.9
+
+Number of Fisher Scoring iterations: 5
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>To determine what this means, you have to look at the levels in the <code class="language-plaintext highlighter-rouge">HINS1</code> factor.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">levels</span><span class="p">(</span><span class="n">pums</span><span class="o">$</span><span class="n">HINS1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] "1" "2"
+</code></pre></div></div>
+
+<p class="notes">In order, the levels are “1” and “2”, which in the US Census data corresponds to yes and no, respectively for insurance through an employer. For a binomial distribution, the first level of the factor is considered 0 or “failure” and the other levels are considered 1 or “success.” The predicted value, the linear combination of variables and coefficients, is the log odds of “success”. So in this example, <code class="language-plaintext highlighter-rouge">HINS1</code> of 1 (has insurance through employer) is coded as a “0” in the model and <code class="language-plaintext highlighter-rouge">HINS1</code> level of 2 (does not have insurance through employer) is coded as a “1”.</p>
+
+</section>
+
+<section>
+
+<p>Because the slope of wages in the model is negative, this means that a lower wages corresponds to no insurance through employer.</p>
+
+</section>
+
+<section>
+
+<p>To make the analysis more intuitive, you can change the order of the levels in the factor so that the level “2” is coded as 0 and the level “1” is coded as 1 or success.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">pums</span><span class="o">$</span><span class="n">HINS1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">factor</span><span class="p">(</span><span class="n">pums</span><span class="o">$</span><span class="n">HINS1</span><span class="p">,</span><span class="w"> </span><span class="n">levels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"2"</span><span class="p">,</span><span class="w"> </span><span class="s2">"1"</span><span class="p">))</span><span class="w">
+</span><span class="n">levels</span><span class="p">(</span><span class="n">pums</span><span class="o">$</span><span class="n">HINS1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] "2" "1"
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>If you rerun the model, you can see that the estimates remain the same, but the slope of <code class="language-plaintext highlighter-rouge">WAGP</code> is not positive, not negative.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">glm</span><span class="p">(</span><span class="n">HINS1</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">WAGP</span><span class="p">,</span><span class="w">
+  </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">binomial</span><span class="p">,</span><span class="w">
+  </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pums</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+Call:
+glm(formula = HINS1 ~ WAGP, family = binomial, data = pums)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-3.1749  -1.2314   0.6448   0.8791   1.1614  
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) 3.765e-02  5.487e-02   0.686    0.493    
+WAGP        2.855e-05  1.692e-06  16.871   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 5150.0  on 4245  degrees of freedom
+Residual deviance: 4764.9  on 4244  degrees of freedom
+AIC: 4768.9
+
+Number of Fisher Scoring iterations: 5
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>The always popular \(R^2\) indicator for goodness-of-fit is absent from the
+summary of a <code class="language-plaintext highlighter-rouge">glm</code> result, as is the default F-Test of the model’s significance.</p>
+
+</section>
+
+<section>
+
+<p class="notes">The developers of <code class="language-plaintext highlighter-rouge">glm</code>, detecting an increase in user sophistication, are
+leaving more of the model assessment up to you. The “null deviance” and
+“residual deviance” provide most of the information we need. To test the fit of a generalized linear model, it is best to compare the deviance of model to the “null model,” which is the model without predictor variables. Therefore, the null model only fits the intercept.</p>
+
+<p>Use a Chi-squared test to see if the deviance in your model is lower than the null model.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">anova</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span><span class="w"> </span><span class="n">update</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span><span class="w"> </span><span class="n">HINS1</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Chisq'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Analysis of Deviance Table
+
+Model 1: HINS1 ~ WAGP
+Model 2: HINS1 ~ 1
+  Resid. Df Resid. Dev Df Deviance  Pr(&gt;Chi)    
+1      4244     4764.9                          
+2      4245     5150.0 -1   -385.1 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre></div></div>
+
+</section>
+
+<p class="ToS"><a href="#/slides/glm">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/lme4"></a></p>
+
+<section><h2 id="linear-mixed-models">Linear Mixed Models</h2>
+
+<p>The <a href="" class="rlib">lme4</a> package expands the formula “mini-language” to allow
+descriptions of “random effects” into the linear model. These are called mixed models because they contain both fixed and random effects.</p>
+
+<ul>
+  <li>normal predictors are “fixed effects”</li>
+  <li><code class="language-plaintext highlighter-rouge">(...|...)</code> expressions describe “random effects”</li>
+</ul>
+
+<p class="notes">In the context of this package, variables
+added to the right of the <code class="language-plaintext highlighter-rouge">~</code> in the usual way are “fixed effects”—they
+consume a well-defined number of degrees of freedom. Variables added within
+<code class="language-plaintext highlighter-rouge">(...|...)</code> are “random effects”.</p>
+
+</section>
+
+<section>
+
+<p>Models with random effects should be understood as specifying multiple,
+overlapping probability statements about the observations.</p>
+
+<p class="notes">For example, we can to fit the response variable log(WAGP) with the predictors of marital status (<code class="language-plaintext highlighter-rouge">MAR</code>) and education (<code class="language-plaintext highlighter-rouge">SCHL</code>), where <code class="language-plaintext highlighter-rouge">MAR</code> is a random effect and <code class="language-plaintext highlighter-rouge">SCHL</code> is a fixed effect. As assumed by linear models, the response variable, log(WAGP), is normally distributed, with a mean of \mu_i and standard deviation of \sigma_0^2. In addition, the random effect, <code class="language-plaintext highlighter-rouge">MAR</code> varies and has a normal distribution, with mean of 0 and standard deviation of \Sigma_1. The fixed effect, <code class="language-plaintext highlighter-rouge">SCHL</code> does not vary, and thus is a <em>fixed</em>.</p>
+
+\[\begin{align}
+&amp;\log(WAGP_i) \sim Normal(\mu_i, \sigma_0^2) \\
+&amp;\mu_i = \beta_0 + \boldsymbol{\beta_1}[MAR] + \beta_2 [SCHL_i] \\
+&amp;\boldsymbol{\beta_1} \sim Normal(0, \boldsymbol{\Sigma_1}) \\
+&amp;\end{align}\]
+
+</section>
+
+<section>
+
+<p>Mixed models can be fit with “random intercepts” and “random slopes”. With a random intercept, each level within the random effect can have a different intercept. With a random slope, each level can have a different slope.</p>
+
+<p>In <code class="language-plaintext highlighter-rouge">lme4</code> random effects are shown in the formula inside parentheses, with variables to the right of a “|” to fit random intercept, and to the left to fit a random slope.</p>
+
+</section>
+
+<section>
+
+<table>
+  <thead>
+    <tr>
+      <th>Formula</th>
+      <th>Description of random effect</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ (1 | b) + a</code></td>
+      <td>random intercept for each level in <code class="language-plaintext highlighter-rouge">b</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">y ~ a + (a | b)</code></td>
+      <td>random intercept and slope w.r.t. <code class="language-plaintext highlighter-rouge">a</code> for each level in <code class="language-plaintext highlighter-rouge">b</code></td>
+    </tr>
+  </tbody>
+</table>
+
+</section>
+
+<section>
+
+<h3 id="random-intercept">Random Intercept</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">lmer</code> function fits linear models with the <a href="" class="rlib">lme4</a> extensions to
+the <code class="language-plaintext highlighter-rouge">lm</code> formula syntax.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">lme4</span><span class="p">)</span><span class="w">
+</span><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lmer</span><span class="p">(</span><span class="w">
+  </span><span class="nf">log</span><span class="p">(</span><span class="n">WAGP</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="o">|</span><span class="n">MAR</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">SCHL</span><span class="p">,</span><span class="w">
+  </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pums</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Linear mixed model fit by REML ['lmerMod']
+Formula: log(WAGP) ~ (1 | MAR) + SCHL
+   Data: pums
+
+REML criterion at convergence: 12995.7
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-7.7980 -0.3802  0.1780  0.6465  2.7135 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ MAR      (Intercept) 0.1491   0.3862  
+ Residual             1.2398   1.1134  
+Number of obs: 4246, groups:  MAR, 5
+
+Fixed effects:
+                   Estimate Std. Error t value
+(Intercept)         9.28460    0.18264  50.835
+SCHLHigh School     0.40600    0.06410   6.334
+SCHLCollege Credit  0.49035    0.06222   7.881
+SCHLBachelor's      0.99794    0.06864  14.539
+SCHLMaster's        1.10705    0.08150  13.584
+SCHLDoctorate       1.26125    0.20772   6.072
+
+Correlation of Fixed Effects:
+            (Intr) SCHLHS SCHLCC SCHLB' SCHLM'
+SCHLHghSchl -0.254                            
+SCHLCllgCrd -0.259  0.763                     
+SCHLBchlr's -0.232  0.699  0.719              
+SCHLMastr's -0.197  0.590  0.607  0.560       
+SCHLDoctort -0.077  0.231  0.238  0.220  0.186
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p class="notes">In a <code class="language-plaintext highlighter-rouge">lm</code> or <code class="language-plaintext highlighter-rouge">glm</code> fit, each response is conditionally independent, given it’s
+predictors and the model coefficients. Each observation corresponds to it’s own
+probability statement. Mixed models allow you to specify random effects,  assuming that the response variable is <em>not</em> independent given the predictors and model coefficients. In short, mixed models account for the variation due to the random effects and then estimate the coefficients for the fixed effects.</p>
+
+<p class="notes">Mixed models are more complicated to interpret. The familiar assessment of model residuals is absent from the summary due to the
+lack of a widely accepted measure of null and residual deviance. One way to evaluate mixed models is to compare models with different combinations of fixed effects and to the null model.</p>
+
+<p>We can create a null model where we include the random effect of marital status but take out the fixed effect of education.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">null.model</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lmer</span><span class="p">(</span><span class="w">
+  </span><span class="nf">log</span><span class="p">(</span><span class="n">WAGP</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="o">|</span><span class="n">MAR</span><span class="p">),</span><span class="w">
+  </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pums</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>To compare the fit model to the null model, use the <code class="language-plaintext highlighter-rouge">anova</code> function.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">anova</span><span class="p">(</span><span class="n">null.model</span><span class="p">,</span><span class="w"> </span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>refitting model(s) with ML (instead of REML)
+</code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Data: pums
+Models:
+null.model: log(WAGP) ~ (1 | MAR)
+fit: log(WAGP) ~ (1 | MAR) + SCHL
+           npar   AIC   BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)    
+null.model    3 13310 13329 -6651.8    13304                         
+fit           8 12992 13043 -6488.1    12976 327.37  5  &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>Based on a Chi-squared test, the fit model with education has a lower deviance than the null model, suggesting that education has an effect on wages.</p>
+
+<p class="notes">Other factors, such as AIC, BIC, and log likelihood scores are also often used to compare and evaluate mixed models.</p>
+
+</section>
+
+<section>
+
+<h3 id="random-slope">Random Slope</h3>
+
+<p>Adding a numeric variable on the left of a grouping specified with <code class="language-plaintext highlighter-rouge">(...|...)</code>
+produces a “random slope” model. Here, separate coefficients for hours worked
+are allowed for each level of education.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lmer</span><span class="p">(</span><span class="w">
+  </span><span class="nf">log</span><span class="p">(</span><span class="n">WAGP</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="p">(</span><span class="n">WKHP</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">SCHL</span><span class="p">),</span><span class="w">
+  </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pums</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
+unable to evaluate scaled gradient
+</code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
+Model failed to converge: degenerate Hessian with 1 negative eigenvalues
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p class="notes">The warning that the procedure <code class="language-plaintext highlighter-rouge">failed to converge</code> is worth paying attention
+to. One way to fix this is to change the numerical optimizer used for model fitting
+that <a href="" class="rlib">lme4</a> is used by default. In this example, we change the optimizer to a “BOBYQA” optimizer, which is slower than the default.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lmer</span><span class="p">(</span><span class="w">
+  </span><span class="nf">log</span><span class="p">(</span><span class="n">WAGP</span><span class="p">)</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="p">(</span><span class="n">WKHP</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">SCHL</span><span class="p">),</span><span class="w">
+  </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pums</span><span class="p">,</span><span class="w"> 
+  </span><span class="n">control</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lmerControl</span><span class="p">(</span><span class="n">optimizer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bobyqa"</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r input highlighter-rouge" title="Console"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;</span><span class="w"> </span><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Linear mixed model fit by REML ['lmerMod']
+Formula: log(WAGP) ~ (WKHP | SCHL)
+   Data: pums
+Control: lmerControl(optimizer = "bobyqa")
+
+REML criterion at convergence: 11658.5
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-9.4553 -0.4071  0.1718  0.6258  2.7864 
+
+Random effects:
+ Groups   Name        Variance  Std.Dev. Corr 
+ SCHL     (Intercept) 11.856218 3.44329       
+          WKHP         0.003239 0.05692  -1.00
+ Residual              0.900166 0.94877       
+Number of obs: 4246, groups:  SCHL, 6
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept)  11.2851     0.1084   104.1
+</code></pre></div></div>
+
+</section>
+
+<section>
+
+<p>The <code class="language-plaintext highlighter-rouge">predict</code> function extracts model predictions from a fitted model object
+(i.e. the output of <code class="language-plaintext highlighter-rouge">lm</code>, <code class="language-plaintext highlighter-rouge">glm</code>, <code class="language-plaintext highlighter-rouge">lmer</code>, and <code class="language-plaintext highlighter-rouge">glmer</code>), providing one easy
+way to visualize the effect of estimated coefficients. We can plot the extracted coefficients using <code class="language-plaintext highlighter-rouge">ggplot</code>.</p>
+
+<div class="language-r text-document highlighter-rouge" title="worksheet-6.R"><div class="highlight"><pre class="highlight"><code><span class="n">ggplot</span><span class="p">(</span><span class="n">pums</span><span class="p">,</span><span class="w">
+  </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WKHP</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="n">WAGP</span><span class="p">),</span><span class="w"> </span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SCHL</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_point</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_line</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">fit</span><span class="p">)))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">labs</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Random intercept and slope with lmer'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/model-lang-lesson@v0.5/docs/assets/images/lme4/unnamed-chunk-7-1.png" alt=" " /></p>
+
+<p class="notes">As you can see, each level of education has its own intercept <strong>and</strong> slope for the best fit line.</p>
+
+</section>
+
+<section>
+
+<h3 id="generalized-mixed-models">Generalized Mixed Models</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">glmer</code> function adds upon <code class="language-plaintext highlighter-rouge">lmer</code> the option to specify the same group of
+exponential family distributions as <code class="language-plaintext highlighter-rouge">glm</code> adds to <code class="language-plaintext highlighter-rouge">lm</code>. The same <code class="language-plaintext highlighter-rouge">family</code> argument is used in <code class="language-plaintext highlighter-rouge">glmer</code> to specify the distribution.</p>
+</section>
+
+<p class="ToS"><a href="#/slides/lme4">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/conclude"></a></p>
+
+<section><h2 id="a-little-advice">A Little Advice</h2>
+
+<ul>
+  <li>Don’t <em>start</em> with generalized linear mixed models! Work your way up through
+    <ol>
+      <li><code class="language-plaintext highlighter-rouge">lm()</code></li>
+      <li><code class="language-plaintext highlighter-rouge">glm()</code></li>
+      <li><code class="language-plaintext highlighter-rouge">lmer()</code></li>
+      <li><code class="language-plaintext highlighter-rouge">glmer()</code></li>
+    </ol>
+  </li>
+  <li>Take time to understand the <code class="language-plaintext highlighter-rouge">summary()</code>—the hazards of secondary data compel
+you! The vignettes for <a href="" class="rlib">lme4</a> provide excellent documentation.</li>
+</ul>
+
+</section>
+
+<section>
+
+<p>When stuck, ask for help on <a href="https://stats.stackexchange.com/">Cross Validated</a>. If you are having trouble with
+<a href="" class="rlib">lme4</a>, who knows, <a href="https://stats.stackexchange.com/users/2126/ben-bolker">Ben Bolker</a> himself might provide the answer.</p>
+
+</section>
+
+<p class="ToS"><a href="#/slides/conclude">Top of Section</a></p>
+
+<hr />
+<p><a name="/slides/exercise"></a></p>
+
+<section><h2 id="exercises">Exercises</h2>
+
+<h3 id="exercise-1">Exercise 1</h3>
+
+<p>Regress <code class="language-plaintext highlighter-rouge">WKHP</code> against <code class="language-plaintext highlighter-rouge">AGEP</code>, adding a second-order interaction to allow for
+possible curvature in the relationship. Plot the predicted values over the data
+to verify the coefficients indicate a downward quadratic relationship.</p>
+
+<h3 id="exercise-2">Exercise 2</h3>
+
+<p>Controlling for a person’s educational attainment, fit a linear model that
+addresses the question of wage disparity between men and women in the U.S.
+workforce. What other predictor from the <code class="language-plaintext highlighter-rouge">pums</code> data frame would increase the
+goodness-of-fit of the “control” model, before SEX is considered?</p>
+
+<h3 id="exercise-3">Exercise 3</h3>
+
+<p>Set up a generalized mixed effects model on whether a person attained an advanced
+degree (Master’s or Doctorate). Include sex and age as fixed effects, and include
+a random intercept according to occupation.</p>
+
+<h3 id="exercise-4">Exercise 4</h3>
+
+<p>Write down the formula for a random intercepts model for earned wages with a
+fixed effect of sex and a random effect of educational attainment.</p>
+
+</section>
+
+<section>
+
+<h2 id="solutions">Solutions</h2>
+
+<div class="language-r text-document highlighter-rouge" title="Solution 1"><div class="highlight"><pre class="highlight"><code><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="w">
+  </span><span class="n">WKHP</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">AGEP</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">I</span><span class="p">(</span><span class="n">AGEP</span><span class="o">^</span><span class="m">2</span><span class="p">),</span><span class="w">
+  </span><span class="n">pums</span><span class="p">)</span><span class="w">
+
+</span><span class="n">ggplot</span><span class="p">(</span><span class="n">pums</span><span class="p">,</span><span class="w">
+  </span><span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AGEP</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WKHP</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_point</span><span class="p">(</span><span class="n">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'o'</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_line</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">fit</span><span class="p">)))</span><span class="w">
+</span></code></pre></div></div>
+<p class="captioned"><img src="https://cdn.jsdelivr.net/gh/SESYNC-ci/model-lang-lesson@v0.5/docs/assets/images/exercise/unnamed-chunk-1-1.png" alt=" " /></p>
+
+<div class="language-r text-document highlighter-rouge" title="Solution 2"><div class="highlight"><pre class="highlight"><code><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="n">WAGP</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">SCHL</span><span class="p">,</span><span class="w"> </span><span class="n">pums</span><span class="p">)</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">fit</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+Call:
+lm(formula = WAGP ~ SCHL, data = pums)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-61303 -18649  -5649  12990 144351 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           19614       1362  14.404  &lt; 2e-16 ***
+SCHLHigh School        7396       1584   4.670 3.11e-06 ***
+SCHLCollege Credit    11035       1538   7.177 8.34e-13 ***
+SCHLBachelor's        29976       1683  17.811  &lt; 2e-16 ***
+SCHLMaster's          35197       2002  17.585  &lt; 2e-16 ***
+SCHLDoctorate         43889       5148   8.526  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 27640 on 4240 degrees of freedom
+Multiple R-squared:  0.1405,	Adjusted R-squared:  0.1394 
+F-statistic: 138.6 on 5 and 4240 DF,  p-value: &lt; 2.2e-16
+</code></pre></div></div>
+
+<p>The “baseline” model includes educational attainment, when compared to a model
+with sex as a second predictor, there is a strong indication of signifigance.</p>
+
+<div class="language-r text-document highlighter-rouge" title="Solution 2"><div class="highlight"><pre class="highlight"><code><span class="n">anova</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span><span class="w"> </span><span class="n">update</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span><span class="w"> </span><span class="n">WAGP</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">SCHL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">SEX</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Analysis of Variance Table
+
+Model 1: WAGP ~ SCHL
+Model 2: WAGP ~ SCHL + SEX
+  Res.Df        RSS Df  Sum of Sq     F    Pr(&gt;F)    
+1   4240 3.2391e+12                                  
+2   4239 3.0369e+12  1 2.0218e+11 282.2 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre></div></div>
+
+<p>Adding WKHP to the baseline increases the \(R^2\) to <code class="language-plaintext highlighter-rouge">.32</code> from <code class="language-plaintext highlighter-rouge">.14</code> with just
+<code class="language-plaintext highlighter-rouge">SCHL</code>. There is no way to include the possibility that hours worked also
+dependends on sex, giving a direct and indirect path to the gender wage gap, in
+a linear model.</p>
+
+<div class="language-r text-document highlighter-rouge" title="Solution 2"><div class="highlight"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">update</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span><span class="w"> </span><span class="n">WAGP</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">SCHL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">WKHP</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+Call:
+lm(formula = WAGP ~ SCHL + WKHP, data = pums)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-82469 -14392  -3970   9369 141498 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)        -16544.1     1624.9 -10.181  &lt; 2e-16 ***
+SCHLHigh School      2874.5     1415.8   2.030   0.0424 *  
+SCHLCollege Credit   7969.6     1371.2   5.812 6.63e-09 ***
+SCHLBachelor's      23859.7     1508.8  15.814  &lt; 2e-16 ***
+SCHLMaster's        27986.6     1794.2  15.599  &lt; 2e-16 ***
+SCHLDoctorate       34781.5     4588.8   7.580 4.23e-14 ***
+WKHP                 1051.9       31.5  33.398  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 24600 on 4239 degrees of freedom
+Multiple R-squared:  0.3195,	Adjusted R-squared:  0.3185 
+F-statistic: 331.7 on 6 and 4239 DF,  p-value: &lt; 2.2e-16
+</code></pre></div></div>
+
+<div class="language-r text-document highlighter-rouge" title="Solution 3"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pums</span><span class="w">
+</span><span class="n">levels</span><span class="p">(</span><span class="n">df</span><span class="o">$</span><span class="n">SCHL</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w">
+</span><span class="n">fit</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">glmer</span><span class="p">(</span><span class="w">
+  </span><span class="n">SCHL</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">OCCP</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">AGEP</span><span class="p">,</span><span class="w">
+  </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">binomial</span><span class="p">,</span><span class="w">
+  </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df</span><span class="p">)</span><span class="w">
+</span><span class="n">anova</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span><span class="w"> </span><span class="n">update</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span><span class="w"> </span><span class="n">.</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">SEX</span><span class="p">),</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Chisq'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Data: df
+Models:
+fit: SCHL ~ (1 | OCCP) + AGEP
+update(fit, . ~ . + SEX): SCHL ~ (1 | OCCP) + AGEP + SEX
+                         npar    AIC    BIC  logLik deviance  Chisq Df
+fit                         3 1996.5 2015.6 -995.27   1990.5          
+update(fit, . ~ . + SEX)    4 1997.6 2023.0 -994.79   1989.6 0.9572  1
+                         Pr(&gt;Chisq)
+fit                                
+update(fit, . ~ . + SEX)     0.3279
+</code></pre></div></div>
+
+<div class="language-r text-document highlighter-rouge" title="Solution 4"><div class="highlight"><pre class="highlight"><code><span class="n">WAGP</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">SCHL</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">SEX</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext output highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WAGP ~ (1 | SCHL) + SEX
+</code></pre></div></div>
+
+</section>
+
+<p class="ToS"><a href="#/slides/exercise">Top of Section</a></p>
+
+
+
+        <hr>
+
+<p>If you need to catch-up before a section of code will work, just squish it's
+🍅 to copy code above it into your clipboard. Then paste into your interpreter's
+console, run, and you'll be ready to start in on that section. Code copied by
+both 🍅 and 📋 will also appear below, where you can edit first, and then copy,
+paste, and run again.</p>
+
+<div class="output">
+  <pre id="ketchup" contenteditable="true"><code># Nothing here yet!</code></pre>
+</div>
+
+<script>
+$(document).ready(function(){
+  
+  // Add code help icons to code blocks
+  $('.input, .text-document').append('<ul class="code-help">');
+  $('.code-help')
+    .append('<li class="clipboard">📋</li>');
+  $('.text-document:not(.no-eval) .code-help')
+    .append('<li class="ketchup">🍅</li>');
+
+  // Bind copy actions to mouse clicks on icons
+  var $ketchup = $('#ketchup');
+  var rng = document.createRange();
+  var sel = window.getSelection();
+  $('.ketchup').click(function(){
+    var $prev = $(this)
+      .parents('.text-document')
+      .prevAll('.text-document:has(.ketchup)');
+    $ketchup.find('code').text($prev.find('pre').text());
+    rng.selectNodeContents($ketchup[0]);
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+  });
+  $('.text-document .clipboard').click(function(){
+    var pre = $(this).parents('.text-document').find('pre').text();
+    $ketchup.find('code').text(pre);
+    rng.selectNodeContents($ketchup[0]);
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+  });
+  $('.input .clipboard').click(function(){
+    var pre = $(this).parents('.input').find('pre').text();
+    pre = pre.replace(/(^|\n)[>+] /g, '$1');
+    $ketchup.find('code').text(pre);
+    rng.selectNodeContents($ketchup[0]);
+    sel.removeAllRanges();
+    sel.addRange(rng);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+  });
+});
+</script>
+      </div>
+    </div>
+    <script>
+$(document).ready(function(){
+  // Add links to R and Python package repositories
+  $('a.rlib').map(function(){
+    this.href = 'https://cran.r-project.org/package=' + this.innerText;
+  });
+  $('a.pylib').map(function(){
+    this.href = 'https://pypi.python.org/pypi/' + this.innerText;
+  });
+});
+</script>
+
+  </body>
+</html>
